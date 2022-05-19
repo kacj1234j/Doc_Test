@@ -69,6 +69,12 @@
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#step-3-register-callback-and-init">Step 3. Register callback and init</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#step-4-setup-advertise-data">Step 4. Setup advertise data</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#step-5-setup-scan-response-data">Step 5. Setup scan response data</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#step-6-call-set-adv-data-scan-rsp-data-after-init">Step 6. Call set adv data &amp; scan rsp data after init</a>
+    </li>
         </ul>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#unsolicited-callback">Unsolicited callback</a>
@@ -150,7 +156,7 @@
 </code></pre>
 <p>The definition been defined in <code>qd_module.h</code> in sys_config folder.</p>
 <h4 id="step-2-add-related-file-in-keil-project">Step 2. Add related file in Keil project</h4>
-<p><img alt="ble_mngr_keil_file" src="/application-guide/img/ble_mngr_keil_file.png" /></p>
+<p><img alt="ble_mngr_keil_file" src="\application-guide\img\ble_mngr_keil_file.png" /></p>
 <h4 id="step-3-register-callback-and-init">Step 3. Register callback and init</h4>
 <p>Add below program in <code>app_main.c</code></p>
 <pre><code class="language-c">void APP_BleUnsolicitedCallback(uint16_t u16EvtType, T_OplErr tEvtRst, uint8_t *pu8Data, uint32_t u32DataLen)
@@ -229,6 +235,63 @@
 <p>The <code>APP_BleInit()</code> function create by default in <code>app_main.c</code>,
 it's for developer to fill the ble related init function in it.</p>
 </div>
+<h4 id="step-4-setup-advertise-data">Step 4. Setup advertise data</h4>
+<pre><code class="language-c">void APP_BleAdvDataInit(void)
+{
+    // ble advertise data inititate
+
+    // user modify
+    // *
+
+    uint8_t au8BleAdvertData[];
+
+    // configure your own advertise data
+
+    Opl_Ble_Advertise_Data_Set(au8BleAdvertData, lens);
+
+    // *
+}
+</code></pre>
+<h4 id="step-5-setup-scan-response-data">Step 5. Setup scan response data</h4>
+<p>Create scan response data init function, and modify your wishes data.</p>
+<pre><code class="language-c">void APP_BleScanRspDataInit(void)
+{
+    // ble scan response data inititate
+
+    // user modify
+    // *
+
+    uint8_t au8BleScanRspData[BLE_ADV_SCAN_BUF_SIZE];
+
+    // configure your own scan response data
+
+    if(OPL_OK != Opl_Ble_ScanRsp_Data_Set(au8BleScanRspData, lens))
+    {
+        OPL_LOG_ERRO(APP, &quot;Scan Rsp Data Set Fail&quot;);
+    }
+
+    // *
+}
+</code></pre>
+<h4 id="step-6-call-set-adv-data-scan-rsp-data-after-init">Step 6. Call set adv data &amp; scan rsp data after init</h4>
+<p>Call <code>APP_BleAdvDataInit</code> (created in step 4) and <code>APP_BleScanRspDataInit</code> (created in step 5) after recevied <code>USLCTED_CB_EVT_BLE_INIT</code> event in ble unsolicited callback.</p>
+<pre><code class="language-c">void APP_BleUnsolicitedCallback(uint16_t u16EvtType, T_OplErr tEvtRst, uint8_t *pu8Data, uint32_t u32DataLen)
+{
+    switch(u16EvtType)
+    {
+        case USLCTED_CB_EVT_BLE_INIT:
+        {       
+            // ble inited event
+
+            // initialize ble advertise data
+            APP_BleAdvDataInit();               // &lt;---
+
+            // initialize ble scan response data
+            APP_BleScanRspDataInit();           // &lt;---
+
+            break;
+        }
+</code></pre>
 <h3 id="unsolicited-callback">Unsolicited callback</h3>
 <p>The unsolicited callback will content with ble status and carried the result in each state.</p>
 <div class="admonition info">
