@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>WI-Fi - QD_FWK Programming Guide</title>
+    <title>WI-Fi - Quick-DEV Programming Guide</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
@@ -31,7 +31,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-          <a href="../.." class="icon icon-home"> QD_FWK Programming Guide
+          <a href="../.." class="icon icon-home"> Quick-DEV Programming Guide
         </a><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
@@ -40,7 +40,7 @@
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">QD_FWK</span></p>
+              <p class="caption"><span class="caption-text">Quick-DEV FWK</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../..">Introduction</a>
                   </li>
@@ -53,21 +53,39 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../log_config/">Log Configuration</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../board_config/">Board Configuration</a>
+                  </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">WI-Fi</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#wi-fi-manager">WI-FI Manager</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#initialize">Initialize</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#step-1-enable-wi-fi-manager">Step 1. Enable WI-FI manager</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#callback-register">Callback Register</a>
+    <li class="toctree-l4"><a class="reference internal" href="#step-2-add-related-files-in-keil-project">Step 2. Add related files in Keil project</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#step-3-register-callback-and-init">Step 3. Register callback and init</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#unsolicited-callback-indicate-callback">Unsolicited callback &amp; Indicate callback</a>
     </li>
         </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#network-manager">Network Manager</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#initialize_1">Initialize</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#step-1-enable-network-manager">Step 1. Enable network manager</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#callback-register_1">Callback Register</a>
+    <li class="toctree-l4"><a class="reference internal" href="#step-2-add-related-files-in-keil-project_1">Step 2. Add related files in Keil project</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#step-3-register-callback-and-init_1">Step 3. Register callback and init</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#unsolicited-callback-indicate-callback_1">Unsolicited callback &amp; Indicate callback</a>
     </li>
         </ul>
     </li>
@@ -123,7 +141,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
       <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../..">QD_FWK Programming Guide</a>
+          <a href="../..">Quick-DEV Programming Guide</a>
         
       </nav>
       <div class="wy-nav-content">
@@ -132,6 +150,8 @@
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
           <li>Application Guide &raquo;</li><li>WI-Fi</li>
     <li class="wy-breadcrumbs-aside">
+        <a href="https://github.com/kacj1234j/Doc_Test/edit/master/docs/application-guide/wifi.md"
+          class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -141,23 +161,182 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="wi-fi">WI-FI</h1>
-<h3 id="wi-fi-manager">WI-FI Manager</h3>
-<p>Descript 1..</p>
-<h4 id="initialize">Initialize</h4>
-<p>Init 1...</p>
-<h4 id="callback-register">Callback Register</h4>
-<p>Callback 1...</p>
-<h3 id="network-manager">Network Manager</h3>
-<p>Descript 2..</p>
-<h4 id="initialize_1">Initialize</h4>
-<p>Init 2...</p>
-<h4 id="callback-register_1">Callback Register</h4>
-<p>Callback 2...</p>
-<h3 id="auto-connect">Auto-Connect</h3>
-<p>Descript 3..</p>
-<h4 id="initialize_2">Initialize</h4>
-<p>Init 3...</p>
-<h3 id="how-to">How To...</h3>
+<p>Descript of WI-FI manager &amp; Network Manager &amp; Auto-Connect</p>
+<h2 id="wi-fi-manager">WI-FI Manager</h2>
+<p>WI-FI manager provide a easy way to control WI-FI</p>
+<h3 id="initialize">Initialize</h3>
+<p>Before using the WI-FI manager, please follow below steps to initiate.</p>
+<h4 id="step-1-enable-wi-fi-manager">Step 1. Enable WI-FI manager</h4>
+<pre><code class="language-c">#define WM_ENABLED                               (1)
+</code></pre>
+<p>The definition been defined in <code>qd_config.h</code> in sys_config folder.</p>
+<h4 id="step-2-add-related-files-in-keil-project">Step 2. Add related files in Keil project</h4>
+<p>Image</p>
+<h4 id="step-3-register-callback-and-init">Step 3. Register callback and init</h4>
+<p>Add below program in <code>app_main.c</code></p>
+<pre><code class="language-c">void APP_WmUnsolicitedCallback(T_WmUslctedEvtType tEvtType, T_OplErr tEvtRst, uint8_t *pu8Data, uint32_t u32DataLen)
+{
+    // tEvtType refer to wifi_mngr_api.h
+    switch(tEvtType)
+    {
+        case USLCTED_CB_EVT_WIFI_UP:
+        {
+            // wifi connected event
+            break;
+        }
+
+        case USLCTED_CB_EVT_WIFI_DOWN:
+        {
+            // wifi disconnect event
+            break;
+        }
+
+        case USLCTED_CB_EVT_WIFI_RESET:
+        {
+            // wifi reset event
+            break;
+        }
+
+        case USLCTED_CB_EVT_GOT_IP:
+        {
+            // wifi got ip
+            break;
+        }
+    }
+}
+</code></pre>
+<pre><code class="language-c">void APP_WifiInitDoneIndCallback(T_OplErr tEvtRst)
+{
+    APP_SendMessage(APP_EVT_WIFI_INIT_DONE, (uint8_t*)&amp;tEvtRst, sizeof(T_OplErr));
+}
+</code></pre>
+<pre><code class="language-c">void APP_NetInit(void)
+{
+    // register Wi-Fi unsolicited callback
+    if(OPL_OK != Opl_Wifi_Uslctd_CB_Reg(APP_WmUnsolicitedCallback))
+    {
+        OPL_LOG_ERRO(APP, &quot;Wi-Fi unsolicited callback regist fail&quot;);
+    }
+
+    // Wi-Fi manager initialize
+    Opl_Wifi_Init_Req(APP_WifiInitDoneIndCallback);
+
+    // user implement
+}
+</code></pre>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The <code>APP_NetInit()</code> function create by default in <code>app_main.c</code>,
+it's for developer to fill the network related init function in it.</p>
+</div>
+<h3 id="unsolicited-callback-indicate-callback">Unsolicited callback &amp; Indicate callback</h3>
+<p>There're two types of callback function pointer can be assign to WI-FI manager</p>
+<ul>
+<li><strong>Unsolicited callback</strong> - Used for recving unsolicited events from WI-FI, will happens in WI-FI connected/ disconnected/ reset/ got ip.</li>
+</ul>
+<p>Unsolicited callback carried... Event, Result, Data &amp; DataLens (Descript)</p>
+<ul>
+<li><strong>Indicate callback</strong> - Used for getting solicited events of each request to send to WI-FI manager (such as scan_req).</li>
+</ul>
+<p>Indicate callback carried... Result (Descript)</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Unsolicited callback &amp; Indicate callback prototype located in <code>wifi_mngr_api.h</code></p>
+</div>
+<hr />
+<h2 id="network-manager">Network Manager</h2>
+<p>Network manager can handling wifi manager &amp; auto-connect interactive behavior to let user only care about triggering WI-FI scan request and connect request.</p>
+<h3 id="initialize_1">Initialize</h3>
+<p>Before using the network manager, please follow below steps to initiate.</p>
+<h4 id="step-1-enable-network-manager">Step 1. Enable network manager</h4>
+<pre><code class="language-c">#define WM_ENABLED                               (1)
+#define NM_ENABLED                               (1)
+#define AC_ENABLED                               (1)
+</code></pre>
+<p>The definition been defined in <code>qd_config.h</code> in sys_config folder.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>WM_ENABLED</code> and <code>AC_ENABLED</code> are both required if using network manager.</p>
+</div>
+<h4 id="step-2-add-related-files-in-keil-project_1">Step 2. Add related files in Keil project</h4>
+<p>Image</p>
+<h4 id="step-3-register-callback-and-init_1">Step 3. Register callback and init</h4>
+<p>Add below program in <code>app_main.c</code></p>
+<pre><code class="language-c">void APP_NmUnsolicitedCallback(T_NmUslctdEvtType tEvtType, uint8_t *pu8Data, uint32_t u32DataLen)
+{
+    // tEvtType refer to net_mngr_api.h
+    switch(tEvtType)
+    {
+        case NM_USLCTD_EVT_NETWORK_UP:
+        {
+            // wifi connected &amp; got ip event
+
+            break;
+        }
+        case NM_USLCTD_EVT_NETWORK_DOWN:
+        {
+            // wifi disconnect event
+
+            break;
+        }
+        case NM_USLCTD_EVT_NETWORK_RESET:
+        {
+            // wifi reset event
+
+            break;
+        }
+        default:
+        {
+            // should not be here
+
+            break;
+        }
+    }
+}
+</code></pre>
+<pre><code class="language-c">void APP_NetInit(void)
+{
+    // Network manager initialize (auto-connect enable)
+    APP_NmInit(true, &amp;APP_NmUnsolicitedCallback);
+
+    // user implement
+}
+</code></pre>
+<p>The first character of <code>APP_NmInit()</code> is to enable/disable auto-connect at started.</p>
+<ul>
+<li>If set as enable - the auto-connect will directly content in sequence.</li>
+<li>If set as disable - the auto-connect won't active.</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The <code>APP_NetInit()</code> function create by default in <code>app_main.c</code>,
+it's for developer to fill the network related init function in it.</p>
+</div>
+<h3 id="unsolicited-callback-indicate-callback_1">Unsolicited callback &amp; Indicate callback</h3>
+<p>There're two types of callback function pointer can be assign to Network manager</p>
+<ul>
+<li><strong>Unsolicited callback</strong> - Used for recving unsolicited events from WI-FI, will happens in WI-FI connected/ disconnected/ reset.</li>
+</ul>
+<p>Unsolicited callback carried... Event, Result, Data &amp; DataLens (Descript)</p>
+<ul>
+<li><strong>Indicate callback</strong> - Used for getting solicited events of each request to send to WI-FI manager (such as scan_req).</li>
+</ul>
+<p>Indicate callback carried... Result (Descript)</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Unsolicited callback &amp; Indicate callback prototype located in <code>nm_mngr_api.h</code></p>
+</div>
+<hr />
+<h2 id="auto-connect">Auto-Connect</h2>
+<p>The auto-connect will do automatically connect to stored AP while the WI-FI connection offline, and will periodcially to retry till connected or been disable.</p>
+<h3 id="initialize_2">Initialize</h3>
+<p>Enable auto-connect and add related file into Keil project</p>
+<pre><code class="language-c">#define WM_ENABLED                               (1)
+#define AC_ENABLED                               (1)
+</code></pre>
+<p>Image</p>
+<hr />
+<h2 id="how-to">How To...</h2>
 <ol>
 <li>How to 1...</li>
 <li>How to 2...</li>
@@ -166,7 +345,7 @@
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../log_config/" class="btn btn-neutral float-left" title="Log Configuration"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../board_config/" class="btn btn-neutral float-left" title="Board Configuration"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../ble/" class="btn btn-neutral float-right" title="BluetoothLE">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
@@ -190,8 +369,12 @@
   <div class="rst-versions" role="note" aria-label="Versions">
   <span class="rst-current-version" data-toggle="rst-current-version">
     
+        <span>
+          <a href="https://github.com/kacj1234j/Doc_Test" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
     
-      <span><a href="../log_config/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+      <span><a href="../board_config/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../ble/" style="color: #fcfcfc">Next &raquo;</a></span>
