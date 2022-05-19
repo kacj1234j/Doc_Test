@@ -60,6 +60,22 @@
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">BluetoothLE</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#ble-manager">BLE Manager</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#initialize">Initialize</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#step-1-enable-ble-manager">Step 1. Enable BLE manager</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#step-2-add-related-file-in-keil-project">Step 2. Add related file in Keil project</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#step-3-register-callback-and-init">Step 3. Register callback and init</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#unsolicited-callback">Unsolicited callback</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#register-service">Register service</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#how-to">How To...</a>
     </li>
@@ -125,9 +141,103 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="bluetoothle">BluetoothLE</h1>
-<h3 id="ble-manager">BLE Manager</h3>
-<p>Descript</p>
-<h3 id="how-to">How To...</h3>
+<h2 id="ble-manager">BLE Manager</h2>
+<p>BLE manager provide the auto-advertise option and handling the BLE status that make user eaiser to control BLE statment.</p>
+<h3 id="initialize">Initialize</h3>
+<p>Before using the BLE manager, please follow below steps to initiate.</p>
+<h4 id="step-1-enable-ble-manager">Step 1. Enable BLE manager</h4>
+<pre><code class="language-c">#define BM_ENABLED                               (1)
+</code></pre>
+<p>The definition been defined in <code>qd_module.h</code> in sys_config folder.</p>
+<h4 id="step-2-add-related-file-in-keil-project">Step 2. Add related file in Keil project</h4>
+<p><img alt="ble_mngr_keil_file" src="/application-guide/img/ble_mngr_keil_file.png" /></p>
+<h4 id="step-3-register-callback-and-init">Step 3. Register callback and init</h4>
+<p>Add below program in <code>app_main.c</code></p>
+<pre><code class="language-c">void APP_BleUnsolicitedCallback(uint16_t u16EvtType, T_OplErr tEvtRst, uint8_t *pu8Data, uint32_t u32DataLen)
+{
+    switch(u16EvtType)
+    {
+        case USLCTED_CB_EVT_BLE_INIT:
+        {       
+            // ble inited event
+
+            // initialize ble advertise data
+            APP_BleAdvDataInit();
+
+            // initialize ble scan response data
+            APP_BleScanRspDataInit();
+
+            break;
+        }
+        case USLCTED_CB_EVT_BLE_ENT_ADVERTISE:
+        {
+            // enter advertising event
+
+            break;
+        }
+        case USLCTED_CB_EVT_BLE_EXI_ADVERTISE:
+        {
+            // exit advertising event
+
+            break;
+        }
+        case USLCTED_CB_EVT_BLE_CONNECTED:
+        {
+            // ble connected event
+
+            break;
+        }
+        case USLCTED_CB_EVT_BLE_DISCONNECT:
+        {
+            // ble disconnect event
+
+            break;
+        }
+        default:
+        {
+            // should not be here
+
+            break;
+        }
+    }
+}
+</code></pre>
+<pre><code class="language-c">void APP_BleInit(void)
+{
+    // assign unsolicited callback function
+    Opl_Ble_Uslctd_CB_Reg(&amp;APP_BleUnsolicitedCallback);
+
+    // register service
+    GAP_Svc_Init();
+    GATT_Svc_Init();
+
+    // ...register your service here
+
+    // initialize the ble manager (auto-adv)
+    Opl_Ble_Init_Req(true);
+
+    // user implement
+}
+</code></pre>
+<p>The character of <code>Opl_Ble_Init_Req()</code> is to enable/disable auto-advertise function.</p>
+<ul>
+<li>If set as true - the auto-advertise will be enabled, and will directly start advertise after ble manager init done. While disconnect from connected state, ble manager will also start advertising, till user calling <code>Opl_Ble_Stop_Req()</code>.</li>
+<li>If set as false - the auto-advertise will be disabled, and will not advertise after ble manager init done.</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The <code>APP_BleInit()</code> function create by default in <code>app_main.c</code>,
+it's for developer to fill the ble related init function in it.</p>
+</div>
+<h3 id="unsolicited-callback">Unsolicited callback</h3>
+<p>The unsolicited callback will content with ble status and carried the result in each state.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Unsolicited callback prototype located in <code>ble_mngr_api.h</code></p>
+</div>
+<h3 id="register-service">Register service</h3>
+<p>Descript how to create the service file</p>
+<h2 id="how-to">How To...</h2>
 <ol>
 <li>How to 1...</li>
 <li>How to 2...</li>
