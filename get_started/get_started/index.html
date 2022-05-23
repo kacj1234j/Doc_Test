@@ -46,19 +46,21 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Get Started</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#sdk-download-and-install">SDK download and install</a>
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#start-your-first-application">Start your first application</a>
+    <li class="toctree-l2"><a class="reference internal" href="#step-1-sdk-download-and-install">Step 1. SDK download and install</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#connect-ot-dev-kit">Connect ot Dev-Kit</a>
+    <li class="toctree-l2"><a class="reference internal" href="#step-2-start-your-first-application">Step 2. Start your first application</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#configuration-setup">Configuration setup</a>
+    <li class="toctree-l2"><a class="reference internal" href="#step-3-connect-ot-dev-kit">Step 3. Connect ot Dev-Kit</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#build-project">Build project</a>
+    <li class="toctree-l2"><a class="reference internal" href="#step-4-configuration-setup">Step 4. Configuration setup</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#download-firmware">Download firmware</a>
+    <li class="toctree-l2"><a class="reference internal" href="#step-5-build-project">Step 5. Build project</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#get-log">Get log</a>
+    <li class="toctree-l2"><a class="reference internal" href="#step-6-download-firmware">Step 6. Download firmware</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-7-get-log">Step 7. Get log</a>
     </li>
     </ul>
                   </li>
@@ -135,20 +137,86 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="get-started">Get Started</h1>
-<h3 id="sdk-download-and-install">SDK download and install</h3>
-<p>Content 1..</p>
-<h3 id="start-your-first-application">Start your first application</h3>
-<p>Content 2..</p>
-<h3 id="connect-ot-dev-kit">Connect ot Dev-Kit</h3>
-<p>Content 3..</p>
-<h3 id="configuration-setup">Configuration setup</h3>
-<p>Content 4..</p>
-<h3 id="build-project">Build project</h3>
-<p>Content 5..</p>
-<h3 id="download-firmware">Download firmware</h3>
-<p>Content 6..</p>
-<h3 id="get-log">Get log</h3>
-<p>Content 7..</p>
+<h2 id="overview">Overview</h2>
+<p><img alt="qd_fwk_root_folder_struct_extent" src="../img/qd_fwk_root_folder_struct_extent.png" /></p>
+<p>-examples : example applications</p>
+<p>-quick_dev : Quick-Dev framework program</p>
+<p>-sdk : Opulinks chip SDK</p>
+<h2 id="step-1-sdk-download-and-install">Step 1. SDK download and install</h2>
+<p>Download SDK you needed in <a href="https://github.com/Opulinks-Tech">Opulinks Github</a></p>
+<ul>
+<li>OPL1000_A3: <a href="https://github.com/Opulinks-Tech/OPL1000A3-SDK">https://github.com/Opulinks-Tech/OPL1000A3-SDK</a></li>
+<li>OPL2500_A0: </li>
+</ul>
+<p>After downloaded, the folder struct of SDK will look like below screenshot.</p>
+<p><img alt="sdk_folder_struct" src="../img/sdk_folder_struct.png" /></p>
+<p>Copy below folder into <code>QD_FWK\sdk\</code></p>
+<ul>
+<li>FW_Pack</li>
+<li>SDK</li>
+<li>Tool</li>
+</ul>
+<h2 id="step-2-start-your-first-application">Step 2. Start your first application</h2>
+<p>Now the sdk prepared and ready to go, open the <code>qd_app</code> project in :</p>
+<p><code>QD_FWK\examples\start_up\qd_app</code></p>
+<p>then into the folder base on the sdk version you just inserted.</p>
+<p>For example:</p>
+<ul>
+<li>If download the OPL1000_A3 sdk, then open <code>opl1000_a3</code> folder in qd_app project.</li>
+<li>If download the OPL2500_A0 sdk, then open <code>opl2500_a0</code> folder in qd_app project.</li>
+<li>Other sdk version likewise.</li>
+</ul>
+<p>Open <code>qd_app_m3.uvprojx</code> to start Keil application.</p>
+<h2 id="step-3-connect-ot-dev-kit">Step 3. Connect ot Dev-Kit</h2>
+<p>Connect the Dev-Kit via micro-USB</p>
+<h2 id="step-4-configuration-setup">Step 4. Configuration setup</h2>
+<p>According to <a href="../..">Introduction</a> mention, QD_FWK provide system configure file and module configure option file.</p>
+<p>To know the detail of the configure file, please check <a href="../../application-guide/project_config/">Project Configuration</a></p>
+<p>And both file <code>qd_config.h</code> &amp; <code>qd_module.h</code> can be checked in <code>qd_app</code> project.</p>
+<p><img alt="qd_fwk_qd_app_sys_config" src="../img/qd_fwk_qd_app_sys_config.png" /></p>
+<h2 id="step-5-build-project">Step 5. Build project</h2>
+<p>Click <code>Build</code> and <code>Rebuild</code> button to compiler project.</p>
+<p>Output file <code>qd_app_m3.bin</code> located at <code>&lt;project root&gt;\Output\Object\</code>.</p>
+<h2 id="step-6-download-firmware">Step 6. Download firmware</h2>
+<p>Open <code>download_RELEASE</code> download tool located in <code>sdk\Tools\Download\</code></p>
+<p><img alt="opl1000_download_tool" src="../img/opl1000_download_tool.png" /></p>
+<ol>
+<li>
+<p>In <code>Pack</code> tag insert Script, M0 Bin, M3 Bin files.</p>
+<ul>
+<li>Script -&gt; PatchData.txt (<code>sdk\FW_Pack\</code>)</li>
+<li>M0 Bin -&gt; opl1000_m0.bin (<code>sdk\FW_Pack\</code>)</li>
+<li>M3 Bin -&gt; qd_app_m3.bin (<code>&lt;project root&gt;\Output\Object</code>)</li>
+</ul>
+<p>Will generate <code>opl1000.bin</code> in <code>sdk\Tool\Download\Patch</code> after click <code>Pack</code> button.</p>
+</li>
+<li>
+<p>In <code>OTA</code> tag insert OTA loader, OPL1000 Bin files.</p>
+<ul>
+<li>OTA loader -&gt; opl1000_ota_loader.bin (<code>sdk\FW_Pack\</code>)</li>
+<li>OPL1000 Bin -&gt; opl1000.bin (<code>sdk\Tool\Download\Patch\</code>)</li>
+<li>Product ID -&gt; select to the target chip series ID.</li>
+<li>Chip ID -&gt; select to the target chip ID.</li>
+<li>Firmware ID -&gt; number of current project version.</li>
+<li>Checksum -&gt; auto-calculated.</li>
+</ul>
+<p>Will generate <code>opl1000_ota.bin</code> in <code>sdk\Tool\Download\Patch</code> after click <code>Build OTA Image</code> button.</p>
+</li>
+<li>
+<p>Select <code>UART Port</code> in UART Setting block which connected to Dev-Kit</p>
+</li>
+<li>
+<p>In <code>Download</code> tag insert Patch Bin file to download.</p>
+<ul>
+<li>Patch Bin -&gt; opl1000_ota.bin (<code>sdk\Tool\Download\Patch</code>)</li>
+</ul>
+</li>
+<li>
+<p>Click download and press reset button on Dev-Kit.</p>
+</li>
+</ol>
+<h2 id="step-7-get-log">Step 7. Get log</h2>
+<p>Open terminal (such as Tera-Term or Putty application) and connect to the target COM port and press reset button on Dev-Kit.</p>
               
             </div>
           </div><footer>
