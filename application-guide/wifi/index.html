@@ -93,6 +93,8 @@
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#initialize_2">Initialize</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a>
+    </li>
         </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#how-to">How To...</a>
@@ -228,7 +230,7 @@
 </code></pre>
 <p>The first character of <code>APP_NmInit()</code> is to enable/disable auto-connect at started.</p>
 <ul>
-<li>If set as true - the auto-connect will directly content in sequence.</li>
+<li>If set as true - the auto-connect will directly be funtional in sequence.</li>
 <li>If set as false - the auto-connect won't active.</li>
 </ul>
 <div class="admonition info">
@@ -239,11 +241,15 @@ it's for developer to fill the network related init function in it.</p>
 <h3 id="unsolicited-callback-indicate-callback">Unsolicited callback &amp; Indicate callback</h3>
 <p>There're two types of callback function pointer can be assign to Network manager</p>
 <ul>
-<li><strong>Unsolicited callback</strong> - Used for recving unsolicited events from WI-FI, will happens in WI-FI connected/ disconnected/ reset.</li>
+<li><strong>Unsolicited callback</strong> - Used for recving unsolicited events from network manager, will be called in network up (connect &amp; dhcp)/ network down/ WI-FI reset.</li>
 </ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>network up event represents to WI-FI connected and got dhcp ip</p>
+</div>
 <p>Unsolicited callback carried... Event, Result, Data &amp; DataLens (Descript)</p>
 <ul>
-<li><strong>Indicate callback</strong> - Used for getting solicited events of each request to send to WI-FI manager (such as scan_req).</li>
+<li><strong>Indicate callback</strong> - Used for getting solicited events of each request to send to network manager (such as scan_req).</li>
 </ul>
 <p>Indicate callback carried... Result (Descript)</p>
 <div class="admonition info">
@@ -252,7 +258,9 @@ it's for developer to fill the network related init function in it.</p>
 </div>
 <hr />
 <h2 id="wi-fi-manager">WI-FI Manager</h2>
-<p>WI-FI manager provide a easy way to control WI-FI</p>
+<p>WI-FI manager provide a easy way to control WI-FI.</p>
+<p>!! Info
+    Network manager runs base on WI-Fi manager, so if using the network manager the WI-FI manager will be directly initiate at network manager initiation.</p>
 <h3 id="initialize_1">Initialize</h3>
 <p>Before using the WI-FI manager, please follow below steps to initiate.</p>
 <h4 id="step-1-enable-wi-fi-manager">Step 1. Enable WI-FI manager</h4>
@@ -340,7 +348,12 @@ it's for developer to fill the network related init function in it.</p>
 <pre><code class="language-c">#define WM_ENABLED                               (1)
 #define AC_ENABLED                               (1)
 </code></pre>
-<p>Image</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Auto-Connect will be init while WI-FI manager init, if the <code>AC_ENABLED</code> set.</p>
+</div>
+<h3 id="usage">Usage</h3>
+<p>See in API reference</p>
 <hr />
 <h2 id="how-to">How To...</h2>
 <ol>
