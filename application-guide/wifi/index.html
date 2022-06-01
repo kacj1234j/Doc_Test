@@ -57,11 +57,11 @@
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">WI-Fi</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#wi-fi-manager">WI-FI Manager</a>
+    <li class="toctree-l2"><a class="reference internal" href="#network-manager">Network Manager</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#initialize">Initialize</a>
         <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#step-1-enable-wi-fi-manager">Step 1. Enable WI-FI manager</a>
+    <li class="toctree-l4"><a class="reference internal" href="#step-1-enable-network-manager">Step 1. Enable network manager</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#step-2-add-related-files-in-keil-project">Step 2. Add related files in Keil project</a>
     </li>
@@ -73,11 +73,11 @@
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#network-manager">Network Manager</a>
+    <li class="toctree-l2"><a class="reference internal" href="#wi-fi-manager">WI-FI Manager</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#initialize_1">Initialize</a>
         <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#step-1-enable-network-manager">Step 1. Enable network manager</a>
+    <li class="toctree-l4"><a class="reference internal" href="#step-1-enable-wi-fi-manager">Step 1. Enable WI-FI manager</a>
     </li>
     <li class="toctree-l4"><a class="reference internal" href="#step-2-add-related-files-in-keil-project_1">Step 2. Add related files in Keil project</a>
     </li>
@@ -162,17 +162,106 @@
               
                 <h1 id="wi-fi">WI-FI</h1>
 <p>Descript of WI-FI manager &amp; Network Manager &amp; Auto-Connect</p>
+<h2 id="network-manager">Network Manager</h2>
+<p>Network manager can handling wifi manager &amp; auto-connect interactive behavior to let user only care about triggering WI-FI scan request and connect request.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>To see the usage example of Network Manager, can check in <code>qd_app</code> in <code>examples\start_up\</code> folder.</p>
+</div>
+<p>The network manager initiation will also init the wifi manager and auto-connect. So no need to re-init the wifi manager and auto-connect as well.</p>
+<h3 id="initialize">Initialize</h3>
+<p>Before using the network manager, please follow below steps to initiate.</p>
+<h4 id="step-1-enable-network-manager">Step 1. Enable network manager</h4>
+<pre><code class="language-c">#define WM_ENABLED                               (1)
+#define NM_ENABLED                               (1)
+#define AC_ENABLED                               (1)
+</code></pre>
+<p>The definition been defined in <code>qd_config.h</code> in sys_config folder.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>WM_ENABLED</code> and <code>AC_ENABLED</code> are both required if using network manager.</p>
+<p>(The <code>AC_ENABLED</code> definition will be force to set as <code>true</code> while <code>NM_ENABLED</code> been set.)</p>
+</div>
+<h4 id="step-2-add-related-files-in-keil-project">Step 2. Add related files in Keil project</h4>
+<p><img alt="net_mngr_keil_file" src="../img/net_mngr_keil_file.png" /></p>
+<h4 id="step-3-register-callback-and-init">Step 3. Register callback and init</h4>
+<p>Add below program in <code>app_main.c</code></p>
+<pre><code class="language-c">void APP_NmUnsolicitedCallback(T_NmUslctdEvtType tEvtType, uint8_t *pu8Data, uint32_t u32DataLen)
+{
+    // tEvtType refer to net_mngr_api.h
+    switch(tEvtType)
+    {
+        case NM_USLCTD_EVT_NETWORK_UP:
+        {
+            // wifi connected &amp; got ip event
+
+            break;
+        }
+        case NM_USLCTD_EVT_NETWORK_DOWN:
+        {
+            // wifi disconnect event
+
+            break;
+        }
+        case NM_USLCTD_EVT_NETWORK_RESET:
+        {
+            // wifi reset event
+
+            break;
+        }
+        default:
+        {
+            // should not be here
+
+            break;
+        }
+    }
+}
+</code></pre>
+<pre><code class="language-c">void APP_NetInit(void)
+{
+    // Network manager initialize (auto-connect enable)
+    APP_NmInit(true, &amp;APP_NmUnsolicitedCallback);
+
+    // user implement
+}
+</code></pre>
+<p>The first character of <code>APP_NmInit()</code> is to enable/disable auto-connect at started.</p>
+<ul>
+<li>If set as true - the auto-connect will directly content in sequence.</li>
+<li>If set as false - the auto-connect won't active.</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The <code>APP_NetInit()</code> function create by default in <code>app_main.c</code>,
+it's for developer to fill the network related init function in it.</p>
+</div>
+<h3 id="unsolicited-callback-indicate-callback">Unsolicited callback &amp; Indicate callback</h3>
+<p>There're two types of callback function pointer can be assign to Network manager</p>
+<ul>
+<li><strong>Unsolicited callback</strong> - Used for recving unsolicited events from WI-FI, will happens in WI-FI connected/ disconnected/ reset.</li>
+</ul>
+<p>Unsolicited callback carried... Event, Result, Data &amp; DataLens (Descript)</p>
+<ul>
+<li><strong>Indicate callback</strong> - Used for getting solicited events of each request to send to WI-FI manager (such as scan_req).</li>
+</ul>
+<p>Indicate callback carried... Result (Descript)</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Unsolicited callback &amp; Indicate callback prototype located in <code>nm_mngr_api.h</code></p>
+</div>
+<hr />
 <h2 id="wi-fi-manager">WI-FI Manager</h2>
 <p>WI-FI manager provide a easy way to control WI-FI</p>
-<h3 id="initialize">Initialize</h3>
+<h3 id="initialize_1">Initialize</h3>
 <p>Before using the WI-FI manager, please follow below steps to initiate.</p>
 <h4 id="step-1-enable-wi-fi-manager">Step 1. Enable WI-FI manager</h4>
 <pre><code class="language-c">#define WM_ENABLED                               (1)
 </code></pre>
 <p>The definition been defined in <code>qd_module.h</code> in sys_config folder.</p>
-<h4 id="step-2-add-related-files-in-keil-project">Step 2. Add related files in Keil project</h4>
+<h4 id="step-2-add-related-files-in-keil-project_1">Step 2. Add related files in Keil project</h4>
 <p><img alt="wifi_mngr_keil_file" src="../img/wifi_mngr_keil_file.png" /></p>
-<h4 id="step-3-register-callback-and-init">Step 3. Register callback and init</h4>
+<h4 id="step-3-register-callback-and-init_1">Step 3. Register callback and init</h4>
 <p>Add below program in <code>app_main.c</code></p>
 <pre><code class="language-c">void APP_WmUnsolicitedCallback(T_WmUslctedEvtType tEvtType, T_OplErr tEvtRst, uint8_t *pu8Data, uint32_t u32DataLen)
 {
@@ -229,7 +318,7 @@
 <p>The <code>APP_NetInit()</code> function create by default in <code>app_main.c</code>,
 it's for developer to fill the network related init function in it.</p>
 </div>
-<h3 id="unsolicited-callback-indicate-callback">Unsolicited callback &amp; Indicate callback</h3>
+<h3 id="unsolicited-callback-indicate-callback_1">Unsolicited callback &amp; Indicate callback</h3>
 <p>There're two types of callback function pointer can be assign to WI-FI manager</p>
 <ul>
 <li><strong>Unsolicited callback</strong> - Used for recving unsolicited events from WI-FI, will happens in WI-FI connected/ disconnected/ reset/ got ip.</li>
@@ -242,89 +331,6 @@ it's for developer to fill the network related init function in it.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>Unsolicited callback &amp; Indicate callback prototype located in <code>wifi_mngr_api.h</code></p>
-</div>
-<hr />
-<h2 id="network-manager">Network Manager</h2>
-<p>Network manager can handling wifi manager &amp; auto-connect interactive behavior to let user only care about triggering WI-FI scan request and connect request.</p>
-<h3 id="initialize_1">Initialize</h3>
-<p>Before using the network manager, please follow below steps to initiate.</p>
-<h4 id="step-1-enable-network-manager">Step 1. Enable network manager</h4>
-<pre><code class="language-c">#define WM_ENABLED                               (1)
-#define NM_ENABLED                               (1)
-#define AC_ENABLED                               (1)
-</code></pre>
-<p>The definition been defined in <code>qd_config.h</code> in sys_config folder.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><code>WM_ENABLED</code> and <code>AC_ENABLED</code> are both required if using network manager.</p>
-</div>
-<h4 id="step-2-add-related-files-in-keil-project_1">Step 2. Add related files in Keil project</h4>
-<p><img alt="net_mngr_keil_file" src="../img/net_mngr_keil_file.png" /></p>
-<h4 id="step-3-register-callback-and-init_1">Step 3. Register callback and init</h4>
-<p>Add below program in <code>app_main.c</code></p>
-<pre><code class="language-c">void APP_NmUnsolicitedCallback(T_NmUslctdEvtType tEvtType, uint8_t *pu8Data, uint32_t u32DataLen)
-{
-    // tEvtType refer to net_mngr_api.h
-    switch(tEvtType)
-    {
-        case NM_USLCTD_EVT_NETWORK_UP:
-        {
-            // wifi connected &amp; got ip event
-
-            break;
-        }
-        case NM_USLCTD_EVT_NETWORK_DOWN:
-        {
-            // wifi disconnect event
-
-            break;
-        }
-        case NM_USLCTD_EVT_NETWORK_RESET:
-        {
-            // wifi reset event
-
-            break;
-        }
-        default:
-        {
-            // should not be here
-
-            break;
-        }
-    }
-}
-</code></pre>
-<pre><code class="language-c">void APP_NetInit(void)
-{
-    // Network manager initialize (auto-connect enable)
-    APP_NmInit(true, &amp;APP_NmUnsolicitedCallback);
-
-    // user implement
-}
-</code></pre>
-<p>The first character of <code>APP_NmInit()</code> is to enable/disable auto-connect at started.</p>
-<ul>
-<li>If set as true - the auto-connect will directly content in sequence.</li>
-<li>If set as false - the auto-connect won't active.</li>
-</ul>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>The <code>APP_NetInit()</code> function create by default in <code>app_main.c</code>,
-it's for developer to fill the network related init function in it.</p>
-</div>
-<h3 id="unsolicited-callback-indicate-callback_1">Unsolicited callback &amp; Indicate callback</h3>
-<p>There're two types of callback function pointer can be assign to Network manager</p>
-<ul>
-<li><strong>Unsolicited callback</strong> - Used for recving unsolicited events from WI-FI, will happens in WI-FI connected/ disconnected/ reset.</li>
-</ul>
-<p>Unsolicited callback carried... Event, Result, Data &amp; DataLens (Descript)</p>
-<ul>
-<li><strong>Indicate callback</strong> - Used for getting solicited events of each request to send to WI-FI manager (such as scan_req).</li>
-</ul>
-<p>Indicate callback carried... Result (Descript)</p>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>Unsolicited callback &amp; Indicate callback prototype located in <code>nm_mngr_api.h</code></p>
 </div>
 <hr />
 <h2 id="auto-connect">Auto-Connect</h2>
