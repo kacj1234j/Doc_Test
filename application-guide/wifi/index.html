@@ -98,6 +98,26 @@
         </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#how-to">How To...</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#network-manager_1">Network Manager</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#how-to-perform-wi-fi-scan">How to perform Wi-Fi scan</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#how-to-perform-wi-fi-connection-according-to-the-scan-result">How to perform Wi-Fi connection according to the scan result</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#wi-fi-manager_1">WI-FI Manager</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#how-to-perform-wi-fi-initiate">How to perform Wi-Fi initiate</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#how-to-perform-wi-fi-scan_1">How to perform Wi-Fi scan</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#how-to-perform-wi-fi-connect-according-to-the-scan-result">How to perform Wi-Fi connect according to the scan result</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
     </li>
     </ul>
                   </li>
@@ -170,7 +190,7 @@
 <p class="admonition-title">Info</p>
 <p>To see the usage example of Network Manager, can check in <code>qd_app</code> in <code>examples\start_up\</code> folder.</p>
 </div>
-<p>The network manager initiation will also init the wifi manager and auto-connect. So no need to re-init the wifi manager and auto-connect as well.</p>
+<p>The network manager initiation will also initialize the wifi manager and auto-connect. It's not necessary to initiate again in application</p>
 <h3 id="initialize">Initialize</h3>
 <p>Before using the network manager, please follow below steps to initiate.</p>
 <h4 id="step-1-enable-network-manager">Step 1. Enable network manager</h4>
@@ -228,7 +248,7 @@
     // user implement
 }
 </code></pre>
-<p>The first character of <code>APP_NmInit()</code> is to enable/disable auto-connect at started.</p>
+<p>The first parameter of <code>APP_NmInit()</code> is to enable/disable auto-connect at started.</p>
 <ul>
 <li>If set as true - the auto-connect will directly be funtional in sequence.</li>
 <li>If set as false - the auto-connect won't active.</li>
@@ -241,7 +261,7 @@ it's for developer to fill the network related init function in it.</p>
 <h3 id="unsolicited-callback-indicate-callback">Unsolicited callback &amp; Indicate callback</h3>
 <p>There're two types of callback function pointer can be assign to Network manager</p>
 <ul>
-<li><strong>Unsolicited callback</strong> - Used for recving unsolicited events from network manager, will be called in network up (connect &amp; dhcp)/ network down/ WI-FI reset.</li>
+<li><strong>Unsolicited callback</strong> - Used for recving unsolicited events from network manager, will be called in network up (Wi-Fi connected &amp; IP got)/ network down/ WI-FI reset.</li>
 </ul>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -261,7 +281,7 @@ it's for developer to fill the network related init function in it.</p>
 <p>WI-FI manager provide a easy way to control WI-FI.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>Network manager runs base on WI-Fi manager, so if using the network manager the WI-FI manager will be directly initiate at network manager initiation.</p>
+<p>Network manager runs base on WI-FI manager, so if using the network manager the WI-FI manager will be directly initiate at network manager initiation.</p>
 </div>
 <h3 id="initialize_1">Initialize</h3>
 <p>Before using the WI-FI manager, please follow below steps to initiate.</p>
@@ -358,10 +378,103 @@ it's for developer to fill the network related init function in it.</p>
 <p>See in API reference</p>
 <hr />
 <h2 id="how-to">How To...</h2>
-<ol>
-<li>How to 1...</li>
-<li>How to 2...</li>
-</ol>
+<h3 id="network-manager_1">Network Manager</h3>
+<p>Network Manager provides mechanism to configure and monitor Wi-Fi networking. We strongly recommend applying Network Manager due to the Network Manager could make the process more robustly. Once the Network Manager initialize done, developer could start to perform the network process via Network Manager</p>
+<h4 id="how-to-perform-wi-fi-scan">How to perform Wi-Fi scan</h4>
+<ul>
+<li><strong>WI-FI scan request via Network Manager</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr APP_NmWifiScanReq(T_NmScanDoneIndCbFp fpIndCb)
+</code></pre>
+<p>Inside the callback <code>fpIndCb</code>, developer can send message to inform application that scan is done. After receiving, application can retrieve the scan result and trigger the following Wi-Fi connection operation.</p>
+<ul>
+<li><strong>Retrieve WI-FI scan result</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr WM_WaScanListGet(wifi_scan_list_t *ptScanList)
+</code></pre>
+<p>This structure <code>ptScanList</code>defines the list of scanned APs with their corresponding information.</p>
+<h4 id="how-to-perform-wi-fi-connection-according-to-the-scan-result">How to perform Wi-Fi connection according to the scan result</h4>
+<ul>
+<li><strong>WI-FI connect via Network Manager</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr APP_NmWifiCnctReq(T_NmWifiCnctConfig *ptWmWifiCnctConfig, T_NmCnctIndCbFp fpIndCb)
+</code></pre>
+<p>Inside the callback <code>fpIndCb</code>, developer can send message to inform application that connect is done. Developer could receive unsolicited events from Network Manager, including connected/ disconnected/ reset/ got ip.</p>
+<p><strong>Configurate connect configuration <code>ptWmWifiCnctConfig</code> with scan result <code>ptScanList</code></strong></p>
+<pre><code class="language-c">typedef struct S_NmWifiCnctConfig
+{
+    uint8_t u8aBssid[WIFI_MAC_ADDRESS_LENGTH];  // The MAC address of the target AP.
+    uint8_t u8aSsid[WIFI_MAX_LENGTH_OF_SSID];   // The SSID of the target AP.
+    uint8_t u8SsidLen;             
+    uint8_t u8aPwd[WIFI_LENGTH_PASSPHRASE];     // The password of the target AP.
+    uint8_t u8PwdLen;                           // The length of the password. If the length is 64, the password is regarded as PMK.
+    uint8_t u8Timeout;                          // Connect timeout
+} T_NmWifiCnctConfig;
+</code></pre>
+<h3 id="wi-fi-manager_1">WI-FI Manager</h3>
+<p>It is not necessary to access Wi-Fi Manager if Network Manager is enabled. However, developer can disable Network Manager and apply Wi-Fi Manager to perform network process directly. Before performing any Wi-Fi operation, developer should trigger Wi-Fi initial first.</p>
+<h4 id="how-to-perform-wi-fi-initiate">How to perform Wi-Fi initiate</h4>
+<ul>
+<li><strong>Wi-Fi initiate via Wi-Fi manager</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr Opl_Wifi_Init_Req(T_WaInitDoneIndCbFp fpIndCb)
+</code></pre>
+<p>Inside the callback <code>fpIndCb</code>, developer can send message to inform application that initiate is done. After receiving, application can  trigger the following Wi-Fi operation.</p>
+<p>Both user application and the auto-connect module might trigger Wi-Fi operation. The user application should turn off auto-connect module before trigger any Wi-Fi operation.</p>
+<ul>
+<li><strong>WI-FI auto connect disable request</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr Opl_Wifi_AC_Disable_Req(bool blActDisconnect, T_AcDisableIndCbFp fpIndCb)
+</code></pre>
+<p>If <code>blActDisconnect</code> is true that disable auto-connect module.</p>
+<p>Inside the callback <code>fpIndCb</code>, developer can send message to inform application Wi-Fi auto-connect disable done. Once user Wi-Fi operation completed, application can turn on auto-connect module again.</p>
+<ul>
+<li><strong>WI-FI auto connect enable request</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr Opl_Wifi_AC_Enable_Req(T_AcEnableIndCbFp fpIndCb)
+</code></pre>
+<p>Inside the callback <code>fpIndCb</code>, developer can send message to inform application Wi-Fi auto-connect enable done.</p>
+<h4 id="how-to-perform-wi-fi-scan_1">How to perform Wi-Fi scan</h4>
+<ul>
+<li><strong>WI-FI scan request via Wi-Fi Manager</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr Opl_Wifi_Scan_Req(wifi_scan_config_t *ptWifiScanConfig, T_WaScanDoneIndCbFp fpIndCb)
+</code></pre>
+<p>Inside the callback <code>fpIndCb</code>, developer can send message to inform application that scan is done. After receiving, application can retrieve the scan result and trigger the following Wi-Fi connection operation.</p>
+<p><strong>Configurate scan configuration <code>ptWifiScanConfig</code></strong></p>
+<pre><code class="language-c">typedef struct {
+    uint8_t *ssid;                             /**&lt; SSID of AP */
+    uint8_t *bssid;                            /**&lt; MAC address of AP, point to array[WIFI_MAC_ADDRESS_LENGTH] */
+    uint8_t channel;                           /**&lt; channel, scan the specific channel */
+    bool show_hidden;                          /**&lt; enable to scan AP whose SSID is hidden */
+    wifi_scan_type_t scan_type;                /**&lt; scan type, active or passive */
+    wifi_scan_time_t scan_time;                /**&lt; scan time per channel */
+} wifi_scan_config_t;
+</code></pre>
+<p>The ssid and bssid could be empty if developer want to scan global APs.</p>
+<ul>
+<li><strong>Retrieve WI-FI scan result</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr WM_WaScanListGet(wifi_scan_list_t *ptScanList)
+</code></pre>
+<p>This structure <code>ptScanList</code>defines the list of scanned APs with their corresponding information.</p>
+<h4 id="how-to-perform-wi-fi-connect-according-to-the-scan-result">How to perform Wi-Fi connect according to the scan result</h4>
+<ul>
+<li><strong>WI-FI connect request via WI-FI Manager</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr Opl_Wifi_Conn_Req(T_WmConnConfig *ptWifiConnConfig, T_WaConnectIndCbFp fpIndCb)
+</code></pre>
+<p>Inside the callback <code>fpIndCb</code>, developer can send message to inform application that connect is done. Developer could receive unsolicited events from Wi-Fi, including connected/ disconnected/ reset/ got ip.</p>
+<p><strong>Configurate connect configuration <code>ptWifiConnConfig</code> with scan result <code>ptScanList</code></strong></p>
+<pre><code class="language-c">typedef struct S_WmConnConfig
+{
+    uint8_t ssid[WIFI_MAX_LENGTH_OF_SSID];                      // The SSID of the target AP.
+    uint8_t ssid_length;                                        // The length of the SSID.
+    uint8_t bssid[WIFI_MAC_ADDRESS_LENGTH];                     // The MAC address of the target AP.
+    uint8_t password[WIFI_LENGTH_PASSPHRASE];                   // The password of the target AP.
+    uint8_t password_length;                                    // The length of the password. If the length is 64, the password is regarded as PMK.
+} __attribute__((packed)) T_WmConnConfig;
+</code></pre>
               
             </div>
           </div><footer>

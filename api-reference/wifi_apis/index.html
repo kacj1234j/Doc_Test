@@ -85,6 +85,16 @@
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">WI-FI</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#network-manager">Network Manager</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#header-file">Header File</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#functions">Functions</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#wi-fi-manager">WI-FI Manager</a>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../ble_apis/">BluetoothLE</a>
@@ -120,7 +130,22 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="wi-fi-api-list">WI-FI (API List)</h1>
+                <h1 id="wi-fi">WI-FI</h1>
+<h2 id="network-manager">Network Manager</h2>
+<p>Network Manager provide support for configuring and monitoring WI-FI networking functionality. We stronly recommend using NM, because NM could help network robust.</p>
+<h3 id="header-file">Header File</h3>
+<p>net_mngr.h </p>
+<h3 id="functions">Functions</h3>
+<pre><code class="language-c">   T_OplErr APP_NmWifiScanReq(T_NmScanDoneIndCbFp fpIndCb)
+</code></pre>
+<table><tr><td bgcolor=blue>Description</td></tr></table>
+
+<p>Trigger WI-FI scan request, and carried the scan result in indicate callback</p>
+<p><strong>Parameters</strong></p>
+<p>fpIndCb : indicate callback function pointer (if required)</p>
+<p><strong>Returns </strong></p>
+<p>T_OplErr : see in opl_err.h</p>
+<h2 id="wi-fi-manager">WI-FI Manager</h2>
               
             </div>
           </div><footer>
