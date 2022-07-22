@@ -5,14 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Wi-Fi example - Quick-DEV Programming Guide</title>
+    <title>WI-FI - Quick-DEV Programming Guide</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Wi-Fi example";
+        var mkdocs_page_name = "WI-FI";
         var mkdocs_page_input_path = "examples\\wifi_example.md";
         var mkdocs_page_url = null;
       </script>
@@ -69,8 +69,14 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="" href="../../WI-FI">None</a>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">WI-FI</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#wi-fi-scan-connect">Wi-Fi scan connect</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#wi-fi-quick-connect">Wi-Fi quick connect</a>
+    </li>
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="" href="../../BluetoothLE">None</a>
                   </li>
@@ -105,7 +111,8 @@
       <div class="wy-nav-content">
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li><li>Wi-Fi example</li>
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Examples &raquo;</li><li>WI-FI</li>
     <li class="wy-breadcrumbs-aside">
         <a href="https://github.com/kacj1234j/Doc_Test/edit/master/docs/examples/wifi_example.md"
           class="icon icon-github"> Edit on GitHub</a>
@@ -119,9 +126,19 @@
               
                 <h1 id="wi-fi-example">Wi-Fi example</h1>
 <p>Wi-Fi example is intended to demonstrate the Wi-Fi functionality, and to provide code that you can copy and adapt into your own projects</p>
+<h2 id="wi-fi-scan-connect">Wi-Fi scan connect</h2>
+<p><img alt="Wi-Fi_scan_connect" src="../img/scan_connect.png" /></p>
+<p>After APP_init , It will start systemTimer. After timer timeout , User Application will send Scan request to Network Manager. The Network Manager will call the callback function to notify the User Application Scandone after the Scan is completed. Once the Application receives the callback function, the user can use the Scan result to select the desired wifi connection and send a Connect request to the Network Manager, and the Network Manager will call the callback function to notify the User Application after connection done.</p>
+<h2 id="wi-fi-quick-connect">Wi-Fi quick connect</h2>
+<p><img alt="Wi-Fi_quick_connect" src="../img/wifi_quick_connect.png" /></p>
+<p>After APP_init, it will start SystemTimer. After timer timeout, User Application will get default SSID and Password from qd_config. Then Network Manager use the AP information to pass to bottom layer that implement WI-FI scan and Network Manager will clear all old AP recorders for saving this AP information to auto-connect if WI-FI disconnect then Network Manager retrieve the scan result (ex: AP bssid) to pass to bottom layer that could use the AP bssid to implement WI-FI connect. By the way, the AP information could be brought by the third party (MCU).</p>
               
             </div>
           </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../application-guide/mp/" class="btn btn-neutral float-left" title="MP"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../api-reference/wifi_apis/" class="btn btn-neutral float-right" title="WI-FI">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
 
   <hr/>
 
@@ -148,6 +165,10 @@
         </span>
     
     
+      <span><a href="../../application-guide/mp/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../api-reference/wifi_apis/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

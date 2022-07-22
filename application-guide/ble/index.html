@@ -84,6 +84,14 @@
         </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#how-to">How To...</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#ble-manager_1">BLE Manager</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#how-to-create-ble-service">How to create BLE service</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
     </li>
     </ul>
                   </li>
@@ -98,7 +106,7 @@
               </ul>
               <p class="caption"><span class="caption-text">Examples</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="" href="../../WI-FI">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/wifi_example/">WI-FI</a>
                   </li>
                   <li class="toctree-l1"><a class="" href="../../BluetoothLE">None</a>
                   </li>
@@ -225,7 +233,7 @@
     // user implement
 }
 </code></pre>
-<p>The character of <code>Opl_Ble_Init_Req()</code> is to enable/disable auto-advertise function.</p>
+<p>The parameter of <code>Opl_Ble_Init_Req()</code> is to enable/disable auto-advertise function.</p>
 <ul>
 <li>If set as true - the auto-advertise will be enabled, and will directly start advertise after ble manager init done. While disconnect from connected state, ble manager will also start advertising, till user calling <code>Opl_Ble_Stop_Req()</code>.</li>
 <li>If set as false - the auto-advertise will be disabled, and will not advertise after ble manager init done.</li>
@@ -301,10 +309,60 @@ it's for developer to fill the ble related init function in it.</p>
 <h3 id="register-service">Register service</h3>
 <p>Descript how to create the service file</p>
 <h2 id="how-to">How To...</h2>
-<ol>
-<li>How to 1...</li>
-<li>How to 2...</li>
-</ol>
+<h3 id="ble-manager_1">BLE Manager</h3>
+<p>The BLE manager should provide a mechanism for user BLE data processing application to register the user (vendor defined) service table. The user data processing application process the data receive from and transmit to the phone App via BLE. Developer could set a file for specific service in <code>quick_dev\ble_services</code></p>
+<h4 id="how-to-create-ble-service">How to create BLE service</h4>
+<ul>
+<li><strong>BLE service initiate</strong> (e.g. Battery Service)</li>
+</ul>
+<pre><code class="language-c">void BAS_Svc_Init(void)
+{
+    g_tBasSvcHandle.patSvcDb = g_BasSvcDb;
+    g_tBasSvcHandle.u8SvcDbSize = BAS_SVC_IDX_TOTAL;
+    g_tBasSvcHandle.ptSvcGattDispatchHandler = BAS_Svc_GattDispatchHandler;
+
+    if(OPL_OK != Opl_Ble_Service_Assign(&amp;g_tBasSvcHandle))
+    {
+        OPL_LOG_ERRO(BAS, &quot;BAS Service assign fail\r\n&quot;);
+    }
+}
+</code></pre>
+<p><code>g_tBasSvcHandle</code> is the BLE service handle structure</p>
+<pre><code class="language-c">static T_BmSvcHandle g_tBasSvcHandle = {0};
+
+typedef struct S_BmSvcHandle
+{
+    LE_GATT_SERVICE_T             *ptSvcDef;
+    LE_GATT_ATTR_T                *patSvcDb;
+    uint8_t                       u8SvcDbSize;
+    uint8_t                       u8Reserved;
+    uint16_t                      u16SvcDataEvtBase;
+    uint16_t                      u16SvcDataEvtTop;
+    T_BmSvcDataProcessHandlerFp   ptSvcDataProcessHandler;
+    T_BmSvcGattDispatchHandlerFp  ptSvcGattDispatchHandler;
+} T_BmSvcHandle;
+
+</code></pre>
+<p>Developer at least should set three parameters <code>*patSvcDb</code>, <code>u8SvcDbSize</code> and <code>ptSvcGattDispatchHandler</code>. <code>*patSvcDb</code> is the service attribute information. <code>u8SvcDbSize</code> is the service size and <code>ptSvcGattDispatchHandler</code> is GATT dispatch handler.</p>
+<pre><code class="language-c">LE_GATT_ATTR_T                *patSvcDb;
+
+typedef struct
+{
+    UINT16                  handle;                    /**&lt; handle */
+    UINT8                   format;                    /**&lt; UUID type */
+    UINT16 * const          pUuid;                     /**&lt; UUID */
+    UINT16                  permit;                    /**&lt; permit */
+    UINT16                  maxLen;                    /**&lt; maxinum value length */
+    UINT16                  len;                       /**&lt; value length */
+    UINT8 * const           pVal;                      /**&lt; value */
+} LE_GATT_ATTR_T;
+</code></pre>
+<p>After configurating the BLE handle structure, developer could register BLE service via BLE Manager. </p>
+<ul>
+<li><strong>Register BLE service via BLE Manager</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr Opl_Ble_Service_Assign(T_BmSvcHandle *ptBmSvcHandle)
+</code></pre>
               
             </div>
           </div><footer>
