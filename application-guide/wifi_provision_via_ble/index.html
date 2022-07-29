@@ -131,7 +131,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="wi-fi-provision-via-ble">WI-FI provision via BLE</h1>
-<p><img src="\application-guide\img\wifi_provision_via_ble.png" align=center></p>
+<p><img alt="wifi_provision_via_ble.png" src="../img/wifi_provision_via_ble.png" /></p>
 <p>This block diagram introduces how to provision Wi-Fi credentials of the Home AP via the Bluetooth low energy (BLE). When the phone (ble central) wants to execute wi-fi provision via ble, it can send wi-fi provision message to BLE Application via BLE Manager. BLE Appication is responsible for parsing the Wi-Fi provision message and sending it to the Network manager for processing according to different events (eg. Wi-Fi scan or Wi-Fi connect). Finally, pass the corresponding response (e.g. scan list result) to the BLE Application via the call back function of Network Manager and then pass it to the phone (BLE central) via BLE Manager. The developer can refer to <a href="../../examples/qd_app_example/">QD_APP</a></p>
 <h3 id="provision-process">Provision Process</h3>
 <ul>
