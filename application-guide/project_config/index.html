@@ -59,8 +59,6 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../log_config/">Log Configuration</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../board_config/">Board Configuration</a>
-                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../wifi/">WI-Fi</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../ble/">BluetoothLE</a>
@@ -71,16 +69,14 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../ota/">OTA</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mp/">MP</a>
-                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Examples</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../examples/wifi_example/">WI-FI</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../BluetoothLE">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/ble_example/">BLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../Start-Up">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">QD_APP</a>
                   </li>
                   <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
                   </li>
@@ -125,11 +121,118 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="project-configuration">Project Configuration</h1>
-<p>Descript</p>
+<p>There are two configuration concepts qd_config.h and qd_module.h in this topic. In qd_config, we help developers classify some system configurations, among which power save is the key point. We use the concept of modularity to include the configuration method in qd_module.h</p>
 <h3 id="about-qd_configh">About 'qd_config.h'</h3>
-<p>Content 1..</p>
+<ul>
+<li><strong>OPL Chip ID check</strong></li>
+</ul>
+<pre><code class="language-c">#if defined(OPL1000_A2) || defined(OPL1000_A3)
+
+#else
+#error &quot;no define chip id in global definition in 'Preprocessor Symbols'&quot;
+#endif
+</code></pre>
+<ul>
+<li><strong>RF power setting configuration</strong></li>
+</ul>
+<pre><code class="language-c">#ifndef RF_CFG_DEF_PWR_SET
+#define RF_CFG_DEF_PWR_SET                      (RF_PWR_LVL_A0)
+#endif
+</code></pre>
+<ul>
+<li>
+<p><strong>System configuration</strong></p>
+<ul>
+<li><strong>Set Power save mode</strong></li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-c">#ifndef SYS_CFG_PS_MODE
+#define SYS_CFG_PS_MODE                         (2)
+#endif
+</code></pre>
+<p>There are three default types of SYS_CFG_PS_MODE that 0 means Low Power, 1 means Balance, 2 means Performance, else means  user define if choosing user define. There are the following configurations that need to be manually configured by the developer if choosing else. </p>
+<ul>
+<li><strong>Smart sleep enable</strong></li>
+</ul>
+<pre><code class="language-c">#ifndef PS_ENABLED
+#define PS_ENABLED                              (1)
+#endif
+</code></pre>
+<ul>
+<li><strong>Mac layer sleep after got ip</strong></li>
+</ul>
+<pre><code class="language-c">#ifndef PS_MAC_LAY_ENABLED
+#define PS_MAC_LAY_ENABLED                      (1)
+#endif 
+</code></pre>
+<ul>
+<li><strong>Wi-Fi dtim period time</strong></li>
+</ul>
+<pre><code class="language-c">#ifndef WM_DTIM_PERIOD_TIME
+#define WM_DTIM_PERIOD_TIME                     (3000)
+#endif
+</code></pre>
+<ul>
+<li><strong>Auto-connect retry interval</strong></li>
+</ul>
+<pre><code class="language-c">#ifndef WM_AC_RETRY_INTVL_TBL
+
+static uint32_t g_u32WmAcRetryIntvlTbl[5] =
+{
+    30000,
+    30000,
+    60000,
+    60000,
+    900000,
+};
+
+#define WM_AC_RETRY_INTVL_TBL                   (g_u32WmAcRetryIntvlTbl)
+#endif
+</code></pre>
 <h3 id="about-qd_moduleh">About 'qd_module.h'</h3>
-<p>Content 2..</p>
+<p>The developer can choose to use the desired module in <code>qd_module.h</code></p>
+<ul>
+<li><strong>Network Manager module</strong></li>
+</ul>
+<p>If wanting to use Network Manager module to implement Wi-Fi process, the developer could set NM_ENABLED (1). At the same time, the developer <strong>must</strong> set Wi-Fi Manager module on that set WM_ENABLED (1).</p>
+<pre><code class="language-c">#ifndef NM_ENABLED
+#define NM_ENABLED                              (1)
+#endif
+
+</code></pre>
+<p>The developer could only use Wi-Fi Manager module to implement Wi-Fi process if the developer don't use Network Manager module. Set NM_ENABLED (0) and WM_ENABLED (1).</p>
+<ul>
+<li><strong>Wi-Fi Manager module</strong></li>
+</ul>
+<pre><code class="language-c">#ifndef WM_ENABLED
+#define WM_ENABLED                              (1)
+#endif
+</code></pre>
+<ul>
+<li><strong>BLE Manager module</strong></li>
+</ul>
+<p>If wanting to use BLE Manager module, the developer sets BM_ENABLED (1).</p>
+<pre><code class="language-c">#ifndef BM_ENABLED
+#define BM_ENABLED                              (1)
+#endif
+</code></pre>
+<ul>
+<li><strong>Time stamp module</strong></li>
+</ul>
+<p>If wanting to use Time stamp module, the developer sets TIME_STMP_ENABLED (1).</p>
+<pre><code class="language-c">#ifndef TIME_STMP_ENABLED
+#define TIME_STMP_ENABLED                       (1)
+#endif
+</code></pre>
+<ul>
+<li><strong>Finite state machine</strong></li>
+</ul>
+<p>If using Wi-Fi Manager module and BLE manager module, the developer <strong>must</strong> use Finite state machine module that set FSM_ENABLED (1).</p>
+<pre><code class="language-c">#ifndef FSM_ENABLED
+#define FSM_ENABLED                             (1)
+#endif
+</code></pre>
               
             </div>
           </div><footer>

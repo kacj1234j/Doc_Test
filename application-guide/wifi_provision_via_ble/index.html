@@ -53,17 +53,25 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../log_config/">Log Configuration</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../board_config/">Board Configuration</a>
-                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../wifi/">WI-Fi</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../ble/">BluetoothLE</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">WI-FI Provision Via BLE</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#provision-sequence">Provision Sequence</a>
+    <li class="toctree-l2"><a class="reference internal" href="#provision-process">Provision Process</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#how-to">How To...</a>
+    <li class="toctree-l2"><a class="reference internal" href="#how-to">How to...</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#how-to-create-an-user-defined-servic-service-eg-quickapp_refble_data_protopl_svcc-in-ble-manager">How to create an user defined servic service (e.g. quick\app_ref\ble_data_prot\opl_svc.c) in BLE Manager</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-to-receive-ble-data-in-and-then-export-to-ble-application-in-application">How to receive BLE data in and then export to BLE Application in application</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-to-handle-wi-fi-provision-message-via-ble-in-ble-application">How to handle Wi-Fi provision message via BLE in BLE Application</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-to-respnose-wi-fi-process-result-to-phone-ble-central">How to respnose Wi-Fi process result to phone (BLE central)</a>
+    </li>
+        </ul>
     </li>
     </ul>
                   </li>
@@ -71,16 +79,14 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../ota/">OTA</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mp/">MP</a>
-                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Examples</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../examples/wifi_example/">WI-FI</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../BluetoothLE">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/ble_example/">BLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../Start-Up">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">QD_APP</a>
                   </li>
                   <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
                   </li>
@@ -125,14 +131,136 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="wi-fi-provision-via-ble">WI-FI provision via BLE</h1>
-<p>Descript</p>
-<h3 id="provision-sequence">Provision Sequence</h3>
-<p>Seq</p>
-<h3 id="how-to">How To...</h3>
-<ol>
-<li>How To 1...</li>
-<li>How To 2...</li>
-</ol>
+<p><img src="\application-guide\img\wifi_provision_via_ble.png" align=center></p>
+<p>This block diagram introduces how to provision Wi-Fi credentials of the Home AP via the Bluetooth low energy (BLE). When the phone (ble central) wants to execute wi-fi provision via ble, it can send wi-fi provision message to BLE Application via BLE Manager. BLE Appication is responsible for parsing the Wi-Fi provision message and sending it to the Network manager for processing according to different events (eg. Wi-Fi scan or Wi-Fi connect). Finally, pass the corresponding response (e.g. scan list result) to the BLE Application via the call back function of Network Manager and then pass it to the phone (BLE central) via BLE Manager. The developer can refer to <a href="../../examples/qd_app_example/">QD_APP</a></p>
+<h3 id="provision-process">Provision Process</h3>
+<ul>
+<li><strong>Creates an user defined service (e.g. <code>quick_dev\app_ref\opl_svc.c</code>)</strong> </li>
+</ul>
+<p>The user defined service could create a gatt handler (e.g. <code>OPL_Svc_GattDispatchHandler()</code>) to pass Wi-Fi provision message from phone (BLE central) to BLE Application. The developer can refer to <a href="../ble/">BluetoothLE</a></p>
+<ul>
+<li><strong>Use BLE Application receive handler in application</strong></li>
+</ul>
+<p>The developer can use BLE Application receive handler <code>OPL_DataRecvHandler(uint8_t *pu8Data, uint16_t u16DataLen)</code> to send Wi-Fi provision message to BLE Application <code>quick_dev\app_ref\ble_data_prot\opl_data_prot.c</code> when BLE Application gets Wi-Fi provision message, it parses this message and then send this parsed message to Network Manager to excute Wi-Fi request.</p>
+<pre><code class="language-c">static void APP_EvtHandler_BleDataInd(uint32_t u32EventId, void *pData, uint32_t u32DataLen)
+{
+    OPL_DataRecvHandler(pData, (uint16_t)u32DataLen);
+}
+</code></pre>
+<h2 id="how-to">How to...</h2>
+<h3 id="how-to-create-an-user-defined-servic-service-eg-quickapp_refble_data_protopl_svcc-in-ble-manager">How to create an user defined servic service (e.g. <code>quick\app_ref\ble_data_prot\opl_svc.c</code>) in BLE Manager</h3>
+<p>Please refer to <a href="../ble/">BluetoothLE</a></p>
+<h3 id="how-to-receive-ble-data-in-and-then-export-to-ble-application-in-application">How to receive BLE data in and then export to BLE Application in application</h3>
+<ul>
+<li><strong>Create a gatt dispatch handler (e.g. <code>OPL_Svc_GattDispatchHandler()</code>) in user defined service</strong> </li>
+</ul>
+<pre><code class="language-c">static T_OplErr OPL_Svc_GattDispatchHandler(MESSAGEID tId, MESSAGE tMsg)
+{
+    switch(tId)
+    {
+        case LE_GATT_MSG_ACCESS_READ_IND:
+        {
+            OPL_Svc_GattDispatchReadHandler((LE_GATT_MSG_ACCESS_READ_IND_T *)tMsg);
+            break;
+        }
+
+        case LE_GATT_MSG_ACCESS_WRITE_IND:
+        {
+            OPL_Svc_GattDispatchWriteHandler((LE_GATT_MSG_ACCESS_WRITE_IND_T *)tMsg);
+            break;
+        }
+
+        case LE_GATT_MSG_NOTIFY_CFM:
+        {
+            Opl_Ble_Send_Message(OPL_SVC_EVT_SEND_TO_PEER_CFM, NULL, 0, 0);
+            break;
+        }
+
+        default:
+        {
+            return OPL_ERR_CASE_INVALID;
+        }
+    }
+
+    return OPL_OK;
+}
+</code></pre>
+<p>This example is receiving <code>LE_GATT_MSG_ACCESS_WRITE_IND</code> event to handle BLE data via <code>OPL_Svc_GattDispatchWriteHandler()</code></p>
+<pre><code class="language-c">tatic void OPL_Svc_GattDispatchWriteHandler(LE_GATT_MSG_ACCESS_WRITE_IND_T *ind)
+{
+    // process the write access activity in each characteristic
+    uint8_t u8AttErr = 0;
+    uint16_t u16AttrId = ind-&gt;handle - g_tOplSvcHandle.ptSvcDef-&gt;startHdl;
+
+    switch(u16AttrId)
+    {
+        case OPL_SVC_IDX_DATA_IN_VAL:
+        {
+            APP_SendMessage(APP_EVT_BLE_DATA_IND, ind-&gt;pVal, ind-&gt;len);
+
+            break;
+        }
+
+        case OPL_SVC_IDX_DATA_OUT_CFG:
+        {
+            uint16_t u16Enable = *((uint16_t *)ind-&gt;pVal);
+
+            if ((ind-&gt;len == 2) &amp;&amp; (u16Enable &lt;= 1))
+            {
+                LeGattChangeAttrVal(g_tOplSvcHandle.ptSvcDef, OPL_SVC_IDX_DATA_OUT_CFG, sizeof(u16Enable), &amp;u16Enable);
+            }
+            else
+            {
+                u8AttErr = LE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+            }
+
+            break;
+        }
+
+        default:
+        {
+            u8AttErr = LE_ATT_ERR_WRITE_NOT_PERMITTED;
+            break;
+        }
+    }
+</code></pre>
+<p>If receiving <code>OPL_SVC_IDX_DATA_IN_VAL</code>, <code>OPL_Svc_GattDispatchWriteHandler()</code> could send BLE data to application via <code>APP_SendMessage()</code></p>
+<p>In application, developer could create a function (e.g. <code>APP_EvtHandler_BleDataInd()</code>) to send BLE data to BLE Application.</p>
+<pre><code class="language-c">static void APP_EvtHandler_BleDataInd(uint32_t u32EventId, void *pData, uint32_t u32DataLen)
+{
+    OPL_DataRecvHandler(pData, (uint16_t)u32DataLen);
+}
+</code></pre>
+<h3 id="how-to-handle-wi-fi-provision-message-via-ble-in-ble-application">How to handle Wi-Fi provision message via BLE in BLE Application</h3>
+<p>BLE Application is responsible for parsing the messages from BLE, and then processing these events by category. Wi-Fi provision messages include Wi-Fi scan, Wi-Fi connect, Wi-Fi disconnect, Wi-Fi reconnect, read device Wi-Fi information, write Wi-Fi device information, get device Wi-Fi status and reset Wi-Fi. It is a BLE Application event handler table <code>g_tOplDataEventHandlerTbl</code> to handle these events. </p>
+<pre><code class="language-c">static T_OplDataEventTable g_tOplDataEventHandlerTbl[] =
+{
+    {OPL_DATA_REQ_SCAN,                      OPL_DataProtocol_Scan},
+    {OPL_DATA_REQ_CONNECT,                   OPL_DataProtocol_Connect},
+    {OPL_DATA_REQ_DISCONNECT,                OPL_DataProtocol_Disconnect},
+    {OPL_DATA_REQ_RECONNECT,                 OPL_DataProtocol_Reconnect},
+    {OPL_DATA_REQ_READ_DEVICE_INFO,          OPL_DataProtocol_ReadDeviceInfo},
+    {OPL_DATA_REQ_WRITE_DEVICE_INFO,         OPL_DataProtocol_WriteDeviceInfo},
+    {OPL_DATA_REQ_WIFI_STATUS,               OPL_DataProtocol_WifiStatus},
+    {OPL_DATA_REQ_RESET,                     OPL_DataProtocol_Reset},
+</code></pre>
+<p>For example, if receiving <code>OPL_DATA_REQ_SCAN</code>, <code>OPL_DataProtocol_Scan</code> handler will send Wi-Fi scan message to Network Manager to execute Wi-Fi scan.</p>
+<pre><code class="language-c">static void OPL_DataProtocol_Scan(uint16_t type, uint8_t *data, int len)
+{
+    OPL_LOG_DEBG(OPL, &quot;OPL_DATA_REQ_SCAN&quot;);
+
+    // reset connection config table
+    memset(&amp;g_tOplDataConnCfg, 0, sizeof(T_OplDataConnCfg));
+
+    g_tOplDataConnCfg.u8ConnectType = OPL_DATA_CONN_TYPE_BSSID;
+
+    // trigger scan request
+    APP_NmWifiScanReq(OPL_DataHandler_WifiScanDoneIndCb);
+}
+</code></pre>
+<h3 id="how-to-respnose-wi-fi-process-result-to-phone-ble-central">How to respnose Wi-Fi process result to phone (BLE central)</h3>
+<p>BLE Application send Wi-Fi provision message to Network Manager, and then Network Manager will create a callback function (e.g. <code>OPL_DataHandler_WifiScanDoneIndCb</code>) to handle indicate callback.</p>
+<p>For example, if Wi-Fi scan done, the Wi-FI scan done callback <code>OPL_DataHandler_WifiScanDoneIndCb</code> will send scan done result to phone via BLE Manager.</p>
               
             </div>
           </div><footer>

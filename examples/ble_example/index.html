@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>OTA - Quick-DEV Programming Guide</title>
+    <title>BLE - Quick-DEV Programming Guide</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "OTA";
-        var mkdocs_page_input_path = "api-reference\\ota_apis.md";
+        var mkdocs_page_name = "BLE";
+        var mkdocs_page_input_path = "examples\\ble_example.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -65,12 +65,18 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/wifi_example/">WI-FI</a>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../wifi_example/">WI-FI</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/ble_example/">BLE</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">BLE</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#ble-battery-service">BLE battery service</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ble-data-inputoutput-service">BLE data input/output service</a>
+    </li>
+    </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">QD_APP</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../qd_app_example/">QD_APP</a>
                   </li>
                   <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
                   </li>
@@ -78,16 +84,14 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">API Reference</span></p>
-              <ul class="current">
-                  <li class="toctree-l1"><a class="reference internal" href="../wifi_apis/">WI-FI</a>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/wifi_apis/">WI-FI</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../ble_apis/">BluetoothLE</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/ble_apis/">BluetoothLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../cloud_apis/">Cloud</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/cloud_apis/">Cloud</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">OTA</a>
-    <ul class="current">
-    </ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/ota_apis/">OTA</a>
                   </li>
               </ul>
       </div>
@@ -104,9 +108,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-          <li>API Reference &raquo;</li><li>OTA</li>
+          <li>Examples &raquo;</li><li>BLE</li>
     <li class="wy-breadcrumbs-aside">
-        <a href="https://github.com/kacj1234j/Doc_Test/edit/master/docs/api-reference/ota_apis.md"
+        <a href="https://github.com/kacj1234j/Doc_Test/edit/master/docs/examples/ble_example.md"
           class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
@@ -116,12 +120,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="ota-api-list">OTA (API List)</h1>
+                <h1 id="ble-example">BLE example</h1>
+<p>BLE example is intended to demonstrate the BLE functionality, and to provide code that you can copy and adapt into your own projects</p>
+<h2 id="ble-battery-service">BLE battery service</h2>
+<p><img alt="ble_svc_battery" src="../img/ble_svc_battery.png" /></p>
+<p>This example uses the module to implement a battery service with a battery level characteristic. During initialization, it starts system timers and adds battery services and battery level characteristic. After the timer timeout, the device will notify the client the battery level characteristics.</p>
+<h2 id="ble-data-inputoutput-service">BLE data input/output service</h2>
+<p><img alt="ble_svc_data_io" src="../img/ble_svc_data_io.png" /></p>
+<p>When the user sends data, the data will be sent to the Le task first. Then Le task will pass the data into the GattDispatchHandler in User define Service. According data's access permission that include read, write or notify, developer could create different handler to handle. This example use write handler <code>GattWriteHandler</code> to handle write access data from phone (APP). <code>GattWriteHandler</code> will be responsible for passing the data to the application, and the application will return the respnose to the phone (APP) via DataoutNotify.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../cloud_apis/" class="btn btn-neutral float-left" title="Cloud"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../wifi_example/" class="btn btn-neutral float-left" title="WI-FI"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../qd_app_example/" class="btn btn-neutral float-right" title="QD_APP">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -149,8 +161,10 @@
         </span>
     
     
-      <span><a href="../cloud_apis/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../wifi_example/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../qd_app_example/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

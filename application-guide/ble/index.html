@@ -53,8 +53,6 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../log_config/">Log Configuration</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../board_config/">Board Configuration</a>
-                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../wifi/">WI-Fi</a>
                   </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">BluetoothLE</a>
@@ -89,6 +87,10 @@
         <ul>
     <li class="toctree-l4"><a class="reference internal" href="#how-to-create-ble-service">How to create BLE service</a>
     </li>
+    <li class="toctree-l4"><a class="reference internal" href="#how-to-receivenotify-data-via-ble">How to receive/notify data via BLE</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#how-to-perform-ble-process">How to perform BLE process</a>
+    </li>
         </ul>
     </li>
         </ul>
@@ -101,16 +103,14 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../ota/">OTA</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mp/">MP</a>
-                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Examples</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../examples/wifi_example/">WI-FI</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../BluetoothLE">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/ble_example/">BLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../Start-Up">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">QD_APP</a>
                   </li>
                   <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
                   </li>
@@ -363,6 +363,165 @@ typedef struct
 </ul>
 <pre><code class="language-c">T_OplErr Opl_Ble_Service_Assign(T_BmSvcHandle *ptBmSvcHandle)
 </code></pre>
+<h4 id="how-to-receivenotify-data-via-ble">How to receive/notify data via BLE</h4>
+<p>Developer could create user defined service to implement input/output via BLE. </p>
+<ul>
+<li><strong>Receive data via BLE</strong></li>
+</ul>
+<p>In user defined servcie, developer can use user defined GATT dispatch handler to handle data from LE task. The developer can create different handlers for processing according to the type of data received in user defined GATT dispatch handler.</p>
+<pre><code class="language-c">static T_OplErr UD_Svc_GattDispatchHandler(MESSAGEID tId, MESSAGE tMsg)
+{
+    switch(tId)
+    {
+        case LE_GATT_MSG_ACCESS_READ_IND:
+        {
+            UD_Svc_GattDispatchReadHandler((LE_GATT_MSG_ACCESS_READ_IND_T *)tMsg);
+            break;
+        }
+
+        case LE_GATT_MSG_ACCESS_WRITE_IND:
+        {
+            UD_Svc_GattDispatchWriteHandler((LE_GATT_MSG_ACCESS_WRITE_IND_T *)tMsg);
+            break;
+        }
+
+        case LE_GATT_MSG_NOTIFY_CFM:
+        {
+            OPL_LOG_INFO(UDS, &quot;Notify Confirm&quot;);
+            break;
+        }
+
+        default:
+        {
+            return OPL_ERR_CASE_INVALID;
+        }
+    }
+
+    return OPL_OK;
+}
+</code></pre>
+<p>There are three types of events in user defined handler that incude <code>LE_GATT_MSG_ACCESS_READ_IND</code>, <code>LE_GATT_MSG_ACCESS_WRITE_IND</code> and <code>LE_GATT_MSG_NOTIFY_CFM</code>. Developer could create different handler to handle these events.</p>
+<p>If receiving <code>LE_GATT_MSG_ACCESS_WRITE_IND</code>, developer could create write handler (e.g. <code>UD_Svc_GattDispatchWriteHandler</code>). In this handler, develop <strong>must</strong> response read access to bottom layer via LE <code>LeGattAccessWriteRsp</code>.</p>
+<pre><code class="language-c">static void UD_Svc_GattDispatchWriteHandler(LE_GATT_MSG_ACCESS_WRITE_IND_T *ind)
+{
+    // process the write access activity in each characteristic
+    uint8_t u8AttErr = 0;
+    uint16_t u16AttrId = ind-&gt;handle - g_tUdSvcHandle.ptSvcDef-&gt;startHdl;
+
+    // printf(&quot;UD Svc attId = %d op = %x offset = %d\r\n&quot;, u16AttrId, ind-&gt;flag, ind-&gt;offset);
+
+    switch(u16AttrId)
+    {
+        case UD_SVC_IDX_TX_VAL:
+        {
+            // send message to app
+            APP_SendMessage(APP_EVT_BLE_DATA_IND, ind-&gt;pVal, ind-&gt;len);
+
+            break;
+        }
+
+        case UD_SVC_IDX_RX_CFG:
+        {
+            uint16_t u16Enable = *((uint16_t *)ind-&gt;pVal);
+
+            if ((ind-&gt;len == 2) &amp;&amp; (u16Enable &lt;= 1))
+            {
+                LeGattChangeAttrVal(g_tUdSvcHandle.ptSvcDef, UD_SVC_IDX_RX_CFG, sizeof(u16Enable), &amp;u16Enable);
+            }
+            else
+            {
+                u8AttErr = LE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+            }
+
+            break;
+        }
+
+        default:
+        {
+            u8AttErr = LE_ATT_ERR_WRITE_NOT_PERMITTED;
+            break;
+        }
+    }
+
+    LeGattAccessWriteRsp(ind-&gt;conn_hdl, ind-&gt;flag, ind-&gt;handle, u8AttErr);
+}
+</code></pre>
+<p>If receiving <code>LE_GATT_MSG_ACCESS_READ_IND</code>, developer could create read handler (e.g. <code>UD_Svc_GattDispatchReadHandler</code>). In this handler, develop <strong>must</strong> response read access to bottom layer via LE <code>LeGattAccessReadRsp</code>. </p>
+<pre><code class="language-c">static void UD_Svc_GattDispatchReadHandler(LE_GATT_MSG_ACCESS_READ_IND_T *ind)
+{
+    // process the read access activity in each characteristic
+    uint8_t u8AttErr = 0;
+    uint16_t u16AttrId = ind-&gt;handle - g_tUdSvcHandle.ptSvcDef-&gt;startHdl;
+
+    // printf(&quot;UD Svc attId = %d op = %x offset = %d\r\n&quot;, u16AttrId, ind-&gt;flag, ind-&gt;offset);
+
+    switch(u16AttrId)
+    {
+        case UD_SVC_IDX_RX_VAL:
+        case UD_SVC_IDX_RX_CFG:
+        {
+            break;
+        }
+
+        default:
+        {
+            u8AttErr = LE_ATT_ERR_READ_NOT_PERMITTED;
+            break;
+        }
+    }
+
+    LeGattAccessReadRsp(ind-&gt;conn_hdl, ind-&gt;handle, u8AttErr);
+}
+</code></pre>
+<ul>
+<li><strong>Notify data via BLE</strong></li>
+</ul>
+<p>If  wanting to actively send messages from application to the host via BLE, developer can create a notify function (e.g. <code>UD_Svc_RxDataOutNotify</code>) in the user defined service. <code>LeGattCharValNotify</code> can send data via LE.</p>
+<pre><code class="language-c">T_OplErr UD_Svc_RxDataOutNotify(uint8_t *pu8Data, uint32_t u32DataLen)
+{
+    LE_ERR_STATE status;
+
+    uint16_t u16NotiAttrId = g_tUdSvcHandle.ptSvcDef-&gt;startHdl + UD_SVC_IDX_RX_VAL;
+
+    // update rx data to attribute value
+    LeGattChangeAttrVal(g_tUdSvcHandle.ptSvcDef, (uint16_t)UD_SVC_IDX_RX_VAL, u32DataLen, pu8Data);
+
+    // notify rx data to host
+    status = LeGattCharValNotify(Opl_Ble_EntityGet()-&gt;conn_hdl, u16NotiAttrId, u32DataLen, pu8Data);
+
+    if (status != SYS_ERR_SUCCESS)
+    {
+        OPL_LOG_ERRO(BAS, &quot;Ble sending data fail&quot;);
+        return OPL_ERR;
+    }
+
+    return OPL_OK;
+}
+</code></pre>
+<h4 id="how-to-perform-ble-process">How to perform BLE process</h4>
+<ul>
+<li><strong>Start BLE advertising</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr Opl_Ble_Start_Req(uint8_t u8AutoAdvEn)
+</code></pre>
+<p>To start BLE advertising, <code>*u8AutoAdvEn</code> is true that enable auto-advertise while disconnect.</p>
+<ul>
+<li><strong>Stop BLE advertisng</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr Opl_Ble_Stop_Req(void)
+</code></pre>
+<ul>
+<li><strong>Set BLE advertise data</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr Opl_Ble_Advertise_Data_Set(uint8_t *pau8AdvData, uint8_t u8AdvDataLen)
+</code></pre>
+<p>If wanting to set BLE advertisement data via BLE Manager, developer could config BLE data <code>*pau8AdvData</code> in <code>Opl_Ble_Advertise_Data_Set</code></p>
+<ul>
+<li><strong>Set BLE scan respnse data</strong></li>
+</ul>
+<pre><code class="language-c">T_OplErr Opl_Ble_ScanRsp_Data_Set(uint8_t *pau8ScanRspData, uint8_t u8ScanRspDataLen)
+</code></pre>
+<p>If BLE central scan, developer could set scan response data in BLE perpherial</p>
               
             </div>
           </div><footer>

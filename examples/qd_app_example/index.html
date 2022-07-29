@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>OTA - Quick-DEV Programming Guide</title>
+    <title>QD_APP - Quick-DEV Programming Guide</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "OTA";
-        var mkdocs_page_input_path = "api-reference\\ota_apis.md";
+        var mkdocs_page_name = "QD_APP";
+        var mkdocs_page_input_path = "examples\\qd_app_example.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -65,12 +65,22 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/wifi_example/">WI-FI</a>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../wifi_example/">WI-FI</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/ble_example/">BLE</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../ble_example/">BLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">QD_APP</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">QD_APP</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#create-ble-channel">Create BLE channel</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#execute-ble-data-in-data-out">Execute BLE data in &amp; data out</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#initialize-wi-fi-via-network-manager">Initialize Wi-Fi via Network Manager</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#wi-fi-provision-via-ble">Wi-Fi provision via BLE</a>
+    </li>
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
                   </li>
@@ -78,16 +88,14 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">API Reference</span></p>
-              <ul class="current">
-                  <li class="toctree-l1"><a class="reference internal" href="../wifi_apis/">WI-FI</a>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/wifi_apis/">WI-FI</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../ble_apis/">BluetoothLE</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/ble_apis/">BluetoothLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../cloud_apis/">Cloud</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/cloud_apis/">Cloud</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">OTA</a>
-    <ul class="current">
-    </ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/ota_apis/">OTA</a>
                   </li>
               </ul>
       </div>
@@ -104,9 +112,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-          <li>API Reference &raquo;</li><li>OTA</li>
+          <li>Examples &raquo;</li><li>QD_APP</li>
     <li class="wy-breadcrumbs-aside">
-        <a href="https://github.com/kacj1234j/Doc_Test/edit/master/docs/api-reference/ota_apis.md"
+        <a href="https://github.com/kacj1234j/Doc_Test/edit/master/docs/examples/qd_app_example.md"
           class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
@@ -116,12 +124,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="ota-api-list">OTA (API List)</h1>
+                <h1 id="qd-app-example">QD APP example</h1>
+<p><img alt="qd_app_arch" src="../img/qd_fwk_arch.png" /></p>
+<p>QD APP  example is the main example of our company's demo, which includes create BLE channel, execute BLE data in &amp; data out, Initialize Wi-Fi via Network Manager, Wi-FI provision via BLE and OTA via BLE in <code>examples\start_up</code></p>
+<h3 id="create-ble-channel">Create BLE channel</h3>
+<p>During initiation, this example uses BLE Manager to create BLE channel.</p>
+<h3 id="execute-ble-data-in-data-out">Execute BLE data in &amp; data out</h3>
+<p><img alt="qd_ble_data_io" src="../img/qd_ble_data_io.png" /></p>
+<p>When the data is sent from user’s phone, the data will be transferred to the BLE Mangar through the LE task, and then the BLE Manager will use the OPL_Service to transfer the data to the User Application. If the User Application wants to transfer data to the phone, there are two ways to do it.  The first is to use CopytoBuffer to package the data and send the packaged message to user’s phone. The second is to use SendtoPeer to package the data and use notify to transfer the data to user’s phone.</p>
+<h3 id="initialize-wi-fi-via-network-manager">Initialize Wi-Fi via Network Manager</h3>
+<p>During initiation, User Application use Network Manager to initialize Wi-Fi.</p>
+<h3 id="wi-fi-provision-via-ble">Wi-Fi provision via BLE</h3>
+<p><img alt="wifi_provision_via_ble" src="../img/wifi_provision_via_ble.png" /></p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../cloud_apis/" class="btn btn-neutral float-left" title="Cloud"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ble_example/" class="btn btn-neutral float-left" title="BLE"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../api-reference/wifi_apis/" class="btn btn-neutral float-right" title="WI-FI">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -149,8 +169,10 @@
         </span>
     
     
-      <span><a href="../cloud_apis/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../ble_example/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../../api-reference/wifi_apis/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
