@@ -62,12 +62,12 @@
                   <li class="toctree-l1 current"><a class="reference internal current" href="./">Cloud</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#cloud-template">Cloud Template</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#porting-rule">Porting rule</a>
-    </li>
-        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#how-to">How To...</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#how-to-port-publicprivate-cloud-that-utilizes-cloud-template">How to port public/private cloud that utilizes Cloud Template</a>
+    </li>
+        </ul>
     </li>
     </ul>
                   </li>
@@ -80,11 +80,9 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../examples/ble_example/">BLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">QD_APP</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">START_UP</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
-                  </li>
-                  <li class="toctree-l1"><a class="" href="../../Peripheral">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/cloud_example/">Cloud</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">API Reference</span></p>
@@ -125,10 +123,325 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="cloud">Cloud</h1>
+<p><img alt="cloud.png" src="../img/cloud.png" /></p>
 <h3 id="cloud-template">Cloud Template</h3>
-<p>Descript</p>
-<h4 id="porting-rule">Porting rule</h4>
+<p>Cloud Template is a template architecture that help developer to integrate the device with the public/private cloud service and achieve the low power consumption and short latency purpose. There two components in Cloud Template, the Cloud Kernel and Cloud Control. Three tasks will be created in Cloud Kernel, they are Cloud TX task, Cloud RX task, and Cloud OTA task. Cloud Control is responsible for grafting Cloud Kernel and Protocol. Following starts the initialization of cloud template in application.</p>
+<pre><code class="language-c">void APP_CldInit(void)
+{
+    // user implement
+    Cloud_Init();
+}
+</code></pre>
+<p>The Cloud Tx task and Cloud RX task will be initiated in Cloud_Init. The Cloud OTA task is optional.</p>
+<pre><code class="language-c">void Cloud_Init(void)
+{
+    // create event group
+    EG_Create(&amp;g_tCloudEventGroup);
+
+    // init tx task
+    Cloud_TxTaskInit();
+
+    // init rx task
+    Cloud_RxTaskInit();
+
+    // init ota http task
+#if (CLOUD_OTA_ENABLED == 1)
+    Cloud_OtaTaskInit();
+#endif
+}
+</code></pre>
+<p>Several events can be handled in Cloud TX task, such establishing a connection with the cloud, disconnecting with the cloud, binding to the cloud, keeping alive with the cloud, waiting for the ack of the cloud and posting to cloud. How many events should be handled is depends on the features of the cloud to port. For example, the cloud establish event in the cloud template example. The Cloud TX task will receive cloud events, and execute the correspnding handlers found in event table <code>g_tCloudTxEvtHandlerTbl</code>. These handlers are responsible for executing cloud events through calling Protocol API. These handlers are located at Cloud Control. </p>
+<pre><code class="language-c">static T_CloudTxEvtHandlerTbl g_tCloudTxEvtHandlerTbl[] = 
+{
+    {CLOUD_EVT_TYPE_INIT,                   Cloud_InitHandler},
+    {CLOUD_EVT_TYPE_ESTABLISH,              Cloud_EstablishHandler},
+    {CLOUD_EVT_TYPE_DISCONNECT,             Cloud_DisconnectHandler},
+    {CLOUD_EVT_TYPE_TIMEOUT,                Cloud_TimeoutHandler},
+    {CLOUD_EVT_TYPE_BINDING,                Cloud_BindingHandler},
+    {CLOUD_EVT_TYPE_KEEP_ALIVE,             Cloud_KeepAliveHandler},
+    {CLOUD_EVT_TYPE_ACK,                    Cloud_AckHandler},
+    {CLOUD_EVT_TYPE_POST,                   Cloud_PostHandler},
+#if (CLOUD_TX_DATA_BACKUP_ENABLED == 1)
+    {CLOUD_EVT_TYPE_POST_BACKUP,            Cloud_PostBackupHandler},
+#endif
+};
+</code></pre>
+<p><code>Cloud_EstablishHandler</code> (Cloud Control) can handle to establish connection with the cloud. The developer can call Protocol API to achieve cloud connection in <code>Cloud_EstablishHandler</code>.</p>
+<pre><code class="language-c">void Cloud_EstablishHandler(uint32_t u32EventId, void *pData, uint32_t u32DataLen)
+{
+    // user implement
+    // 1. establish connection
+
+    // 2. determine the connect status
+    // if connect success - set connection status as online
+        // Cloud_OnlineStatusSet(true);
+    // if connect fail
+        // error handle - call retry connection timer
+        // osTimerStart(g_tCloudConnectRetryTimer, ConnRetryDuration);
+
+    // 3. if connect success, start keep alive timer
+    // Cloud_TimerStart(CLOUD_TMR_KEEP_ALIVE, CLOUD_KEEP_ALIVE_TIME);
+}
+</code></pre>
+<p><code>Cloud_DisconnectHandler</code> (Cloud Control) can handle to dsiconnect the cloud. The developer can call Protocol API to achieve cloud disconnection in <code>Cloud_DisconnectHandler</code>.</p>
+<pre><code class="language-c">void Cloud_DisconnectHandler(uint32_t u32EventId, void *pData, uint32_t u32DataLen)
+{
+    // user implement
+    // 1. close connection
+
+    // 2. determine the disconnect result and change the connection status
+    // if disconnect success - set connection status as offline
+        // Cloud_OnlineStatusSet(false);
+    // if disconnect fail
+        // error handle
+
+    // 3. if disconnect success, stop keep alive timer
+    // Cloud_TimerStop(CLOUD_TMR_KEEP_ALIVE);
+}
+</code></pre>
+<p><code>Cloud_BindingHandler</code> (Cloud Control) can handle to bind the cloud. The developer can call Protocol API to achieve cloud binding in <code>Cloud_BindingHandler</code>.</p>
+<pre><code class="language-c">void Cloud_BindingHandler(uint32_t u32EventId, void *pData, uint32_t u32DataLen)
+{
+    // check connection first
+    if(false == Cloud_OnlineStatusGet())
+    {   
+        OPL_LOG_INFO(CLOUD, &quot;Cloud disconnected&quot;);
+    }
+
+    // user implement
+    // 1. binding process
+}
+</code></pre>
+<p><code>Cloud_KeepAliveHandler</code> (Cloud Control) can handle to keep alive with the cloud. The developer can call Protocol API to achieve keeping alive with the cloud in <code>Cloud_KeepAliveHandler</code>.</p>
+<pre><code class="language-c">void Cloud_KeepAliveHandler(uint32_t u32EventId, void *pData, uint32_t u32DataLen)
+{
+    // check connection first
+    if(false == Cloud_OnlineStatusGet())
+    {   
+        OPL_LOG_INFO(CLOUD, &quot;Cloud disconnected&quot;);
+    }
+
+    // user implement
+    // 1. post keep alive data
+
+    // 2. restart keep alive timer
+    // Cloud_TimerStart(CLOUD_TMR_KEEP_ALIVE, CLOUD_KEEP_ALIVE_TIME);
+}
+</code></pre>
+<p><code>Cloud_AckHandler</code> (Cloud Control) can handle to post ack to the cloud. The developer can call Protocol API to achieve to post ack to the cloud in <code>Cloud_AckHandler</code>.</p>
+<pre><code class="language-c">void Cloud_AckHandler(uint32_t u32EventId, void *pData, uint32_t u32DataLen)
+{
+    // check connection first
+    if(false == Cloud_OnlineStatusGet())
+    {   
+        OPL_LOG_INFO(CLOUD, &quot;Cloud disconnected&quot;);
+    }
+
+    // user implement
+    // 1. post ack data
+}
+</code></pre>
+<p><code>Cloud_PostHandler</code> (Cloud Control) can handle to post data to the cloud. The developer can call Protocol API to achieve to post data to the cloud in <code>Cloud_PostHandler</code>.</p>
+<pre><code class="language-c">void Cloud_PostHandler(uint32_t u32EventId, void *pData, uint32_t u32DataLen)
+{
+    // check connection first
+    if(false == Cloud_OnlineStatusGet())
+    {   
+        OPL_LOG_INFO(CLOUD, &quot;Cloud disconnected&quot;);
+    }
+
+    // user implement
+#if (CLOUD_TX_DATA_BACKUP_ENABLED == 1)
+    // 1. create your own scenario to backup data by using RingBuf (Cloud_RingBuf___)
+
+    // 2. construct data for post (if required)
+    // Cloud_DataConstruct(pData, u32DataLen);
+
+    // 3. post data
+
+    // 4. send event CLOUD_EVT_TYPE_POST_BACKUP if RingBuf not empty
+#else
+    // 1. construct income data for post (if required)
+    // Cloud_DataConstruct(pData, u32DataLen);
+
+    // 2. post data
+
+#endif /* CLOUD_TX_DATA_BACKUP_ENABLED */
+}
+</code></pre>
+<p>Please refer to <a href="../ota/">OTA</a> (<strong>"OTA via WI-FI"</strong>) about CLOUD OTA.</p>
 <h3 id="how-to">How To...</h3>
+<h4 id="how-to-port-publicprivate-cloud-that-utilizes-cloud-template">How to port public/private cloud that utilizes Cloud Template</h4>
+<p>The developer can copy the folder <code>quick_dev\app_ref\cloud\cloud_template</code> to <code>quick_dev\app_ref\cloud</code> that copied folder could rename <code>my_cloud</code> to execute cloud process. There are two important files <code>cloud_kernel.c</code> (Cloud Kernel) &amp; <code>cloud_ctrl.c</code> (Cloud Control). Cloud Kernel is responsible for receiving cloud events and data, then passing to these event's handlers. These handlers are located at Cloud Control. In <code>cloud_kernel.c</code> (Cloud Kernel), there are two components that are <code>Cloud_TxTaskHandler</code> (Cloud TX) and <code>Cloud_RxTaskHandler</code> (Cloud RX). </p>
+<ul>
+<li><strong>Cloud TX process</strong></li>
+</ul>
+<p><code>Cloud_TxTaskHandler</code> is based on the cloud kernel event table <code>g_tCloudTxEvtHandlerTbl</code>. Some important events that are <code>CLOUD_EVT_TYPE_ESTABLISH</code> (establish connection with the cloud), <code>CLOUD_EVT_TYPE_DISCONNECT</code> (disconnect to the cloud), <code>CLOUD_EVT_TYPE_KEEP_ALIVE</code>  (keep alive with the cloud), <code>CLOUD_EVT_TYPE_ACK</code> (response ack to the cloud) and <code>CLOUD_EVT_TYPE_POST</code> (post data to the cloud). There are the corresponding handlers (Cloud Control) to handle these events and pass to protocol to execute cloud kernel event.</p>
+<pre><code class="language-c">// cloud kernel event table
+static T_CloudTxEvtHandlerTbl g_tCloudTxEvtHandlerTbl[] = 
+{
+    {CLOUD_EVT_TYPE_INIT,                   Cloud_InitHandler},
+    {CLOUD_EVT_TYPE_ESTABLISH,              Cloud_EstablishHandler},
+    {CLOUD_EVT_TYPE_DISCONNECT,             Cloud_DisconnectHandler},
+    {CLOUD_EVT_TYPE_TIMEOUT,                Cloud_TimeoutHandler},
+    {CLOUD_EVT_TYPE_BINDING,                Cloud_BindingHandler},
+    {CLOUD_EVT_TYPE_KEEP_ALIVE,             Cloud_KeepAliveHandler},
+    {CLOUD_EVT_TYPE_ACK,                    Cloud_AckHandler},
+    {CLOUD_EVT_TYPE_POST,                   Cloud_PostHandler},
+#if (CLOUD_TX_DATA_BACKUP_ENABLED == 1)
+    {CLOUD_EVT_TYPE_POST_BACKUP,            Cloud_PostBackupHandler},
+#endif
+};
+</code></pre>
+<p>For example, if wnating to post datas to the cloud (TCP Cloud), the developer send post events and data from application to Cloud Kernel (Cloud TX task). Cloud TX task could gets these event and data to pass the corresponding handler <code>Cloud_PostHandler</code>. <code>Cloud_PostHandler</code> would construct data and pass data to <code>Cloud_PostData</code>.</p>
+<pre><code class="language-c">void Cloud_PostData(uint8_t *pu8Data, uint32_t u32DataLen)
+{
+    int32_t i32Ret = 0;
+
+    Opl_Wifi_Skip_Dtim_Set(g_u16CloudTcpSkipDtimId, false);
+
+    osSemaphoreWait(g_tCloudSemaphoreId, osWaitForever);
+
+    if(g_i32TcpTxId != g_i32TcpHdlId)
+    {
+        g_i32TcpTxId = g_i32TcpHdlId;
+    }
+
+    osSemaphoreRelease(g_tCloudSemaphoreId);
+
+    i32Ret = TCP_Send(g_ptrCloudTcpHdlId, (const char *)pu8Data, u32DataLen, TCP_TX_POST_TIMEOUT);
+
+    if(i32Ret &lt;= 0)
+    {
+        OPL_LOG_ERRO(CLOUD, &quot;post fail (ret %d)&quot;, i32Ret);
+
+        osSemaphoreWait(g_tCloudSemaphoreId, osWaitForever);
+
+        if(((uintptr_t)-1 != g_ptrCloudTcpHdlId) &amp;&amp;
+            (g_i32TcpHdlId == g_i32TcpTxId) &amp;&amp;
+            (true == Cloud_OnlineStatusGet()))
+        {
+            uint8_t u8ReConnect = true;
+            Cloud_MsgSend(CLOUD_EVT_TYPE_DISCONNECT, &amp;u8ReConnect, sizeof(u8ReConnect));
+
+            g_ptrCloudTcpHdlId = (uintptr_t)-1;
+            g_i32TcpHdlId = -1;
+            g_i32TcpTxId = -1;
+        }
+
+        osSemaphoreRelease(g_tCloudSemaphoreId);
+    }
+
+    OPL_LOG_INFO(CLOUD, &quot;post: %s (%d)&quot;, pu8Data, u32DataLen);
+
+    Opl_Wifi_Skip_Dtim_Set(g_u16CloudTcpSkipDtimId, true);
+}
+</code></pre>
+<p><code>Cloud_PostData</code> call <code>TCP_Send</code> (Cloud Control) to send data to <code>send</code> (TCP Protocol).</p>
+<pre><code class="language-c">int TCP_Send(uintptr_t fd, const char *buf, uint32_t len, uint32_t timeout_ms)
+{
+    int ret;
+    uint32_t len_sent;
+    int net_err = 0;
+    struct timeval timeout;
+
+    timeout.tv_sec = timeout_ms/1000;
+    timeout.tv_usec = (timeout_ms - (timeout.tv_sec * 1000)) * 1000;
+
+    if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &amp;timeout, sizeof(timeout)) &lt; 0)
+    {
+        OPL_LOG_WARN(TCP, &quot;failed to set socket sending timeout&quot;);
+        net_err = -2;
+        return net_err;
+    }
+
+    ret = send(fd, buf, len, 0);
+    if (ret &gt; 0)
+    {
+        len_sent += ret;
+    }
+    else if (0 == ret)
+    {
+        OPL_LOG_WARN(TCP, &quot;no data to send&quot;);
+    }
+    else
+    {
+        OPL_LOG_ERRO(TCP, &quot;send data fail fd: fd[%d] ret[%d] %s&quot;, fd, ret, strerror(errno));
+        net_err = 1;
+    }
+
+    if (net_err)
+    {
+        return -1;
+    }
+    else
+    {
+        return len_sent;
+    }
+}
+</code></pre>
+<ul>
+<li><strong>Cloud RX process</strong></li>
+</ul>
+<p>In <code>cloud_kernel.c</code> (Cloud Kernel), Cloud RX execute in <code>Cloud_ReceiveHandler</code>. <code>Cloud_ReceiveHandler</code> would call <code>TCP_Recv</code>
+(Cloud Control) to receive data from protocol.</p>
+<p>For example, if receiving data from the cloud (TCP CLOUD), the developer could use <code>TCP_Recv</code> (Cloud Control) call <code>select</code> (TCP protocol) to receive data and pass to <code>Cloud_ReceiveHandler</code> (Cloud Kernel).</p>
+<pre><code class="language-c">nt TCP_Recv(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
+{
+    int ret, err_code;
+    uint32_t len_recv;
+    fd_set sets;
+    struct timeval timeout;
+
+    len_recv = 0;
+    err_code = 0;
+
+    FD_ZERO(&amp;sets);
+    FD_SET(fd, &amp;sets);
+
+    timeout.tv_sec = timeout_ms/1000;
+    timeout.tv_usec = (timeout_ms - (timeout.tv_sec * 1000)) * 1000;
+
+    ret = select(fd + 1, &amp;sets, NULL, NULL, &amp;timeout);
+    if (ret &gt; 0)
+    {
+        if (FD_ISSET(fd, &amp;sets))
+        {
+            ret = recv(fd, buf, len, 0);
+            if (ret &gt; 0)
+            {
+                len_recv += ret;
+            } 
+            else if (0 == ret)
+            {
+                OPL_LOG_DEBG(TCP, &quot;connection is closed&quot;);
+                err_code = -1;
+            }
+            else
+            {
+                OPL_LOG_ERRO(TCP, &quot;recv data fail: fd[%d] ret[%d] %s&quot;, fd, ret, strerror(errno));
+                err_code = -2;
+            }
+        }
+    }
+    else if (0 == ret)
+    {
+        //    printf(&quot;select-recv return 0\n&quot;);  //select timeout, nothing to do
+    }
+    else
+    {
+        //if (EINTR == errno) {
+        //    continue;
+        //}
+        OPL_LOG_ERRO(TCP, &quot;select-recv fail: fd[%d] ret[%d] %s&quot;, fd, ret, strerror(errno));
+        err_code = -2;
+    }
+
+    /* priority to return data bytes if any data be received from TCP connection. */
+    /* It will get error code on next calling */
+    return (0 != len_recv) ? len_recv : err_code;
+}
+</code></pre>
               
             </div>
           </div><footer>

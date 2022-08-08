@@ -67,7 +67,7 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#ota-via-wi-fi">OTA via WI-FI</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#hot-to">Hot To...</a>
+    <li class="toctree-l2"><a class="reference internal" href="#how-to">How To...</a>
     </li>
     </ul>
                   </li>
@@ -78,11 +78,9 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../examples/ble_example/">BLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">QD_APP</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">START_UP</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
-                  </li>
-                  <li class="toctree-l1"><a class="" href="../../Peripheral">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/cloud_example/">Cloud</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">API Reference</span></p>
@@ -123,13 +121,218 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="ota">OTA</h1>
-<p>The OTA update mechanism allows a device to update itself based on data received while the normal firmware is running (for example, over Wi-Fi or Bluetooth.</p>
+<p><img alt="ota.png" src="../img/ota.png" /></p>
+<p>Over-The-Air (OTA) is a procedure to update the firmware without the use of physical wires. OTA is responsible for the flash procedure. The OTA data can be received from phone app via BLE or cloud via Wi-Fi connection. When a product is ready and released in the field, OTA can be used to upload new firmware that brings new features.</p>
 <h3 id="ota-via-ble">OTA via BLE</h3>
+<p>"OTA via BLE" can complete firmware update via Bluetooth from the mobile phone APP (e.g. "Opulinks"). First, send an "OTA request" message to the device from the mobile phone. After receiving, BLE Application will parse the "OTA request" message and request OTA Manager to execute OTA process.</p>
+<p>The developer can call BLE Application API <code>OPL_DataRecvHandler</code> to pass the "OTA request" message to BLE Application when this message enters User Application from BLE Manager.</p>
+<pre><code class="language-c">static void APP_EvtHandler_BleDataInd(uint32_t u32EventId, void *pData, uint32_t u32DataLen)
+{
+    OPL_DataRecvHandler(pData, (uint16_t)u32DataLen);
+}
+</code></pre>
+<p>There are four stage in OTA procedure.</p>
+<pre><code class="language-c">#if (OTA_ENABLED == 1)
+    {OPL_DATA_REQ_OTA_VERSION,               OPL_DataProtocol_OtaVersion},
+    {OPL_DATA_REQ_OTA_UPGRADE,               OPL_DataProtocol_OtaUpgrade},
+    {OPL_DATA_REQ_OTA_RAW,                   OPL_DataProtocol_OtaRaw},
+    {OPL_DATA_REQ_OTA_END,                   OPL_DataProtocol_OtaEnd},
+#endif
+</code></pre>
+<p>To start OTA, the BLE Application will first receive an event <code>OPL_DATA_REQ_OTA_VERSION</code> and call OTA Manager API <code>OTA_CurrentVersionGet</code> to get current OTA firmware version.</p>
+<pre><code class="language-c">static void OPL_DataProtocol_OtaVersion(uint16_t type, uint8_t *data, int len)
+{
+    OPL_LOG_DEBG(OPL, &quot;OPL_DATA_REQ_OTA_VERSION&quot;);
+
+    uint16_t pid;
+    uint16_t cid;
+    uint16_t fid;
+
+    T_OplErr tEvtRst = OTA_CurrentVersionGet(&amp;pid, &amp;cid, &amp;fid);
+
+    if (OPL_OK != tEvtRst)
+        OPL_OtaSendVersionRsp(OPL_DATA_OTA_ERR_HW_FAILURE, 0, 0, 0);
+    else
+        OPL_OtaSendVersionRsp(OPL_DATA_OTA_SUCCESS, pid, cid, fid);
+}
+</code></pre>
+<p>If checking OTA firmware version OK, the device will receive <code>OPL_DATA_REQ_OTA_UPGRADE</code> and call OTA Manager API <code>OTA_UpgradeBegin</code> to start to upgrade firmware.</p>
+<pre><code class="language-c">static void OPL_DataProtocol_OtaUpgrade(uint16_t type, uint8_t *data, int len)
+{
+    OPL_LOG_DEBG(OPL, &quot;OPL_DATA_REQ_OTA_UPGRADE&quot;);
+
+    T_OplOtaData *ota = gTheOta;
+
+    T_OplErr tEvtRst = OPL_OK;  
+
+    tEvtRst = OTA_UpgradeBegin(&amp;g_u16OtaSeqId, ota_hdr, OPL_OtaTimeoutIndCb);
+
+    if(OPL_OK == tEvtRst)
+    {
+        OPL_OtaSendUpgradeRsp(OPL_DATA_OTA_SUCCESS);
+        gTheOta = ota;    
+    }
+    else
+    {
+        OPL_SendEndRsp(OPL_DATA_OTA_ERR_HW_FAILURE, TRUE);
+    }
+}
+</code></pre>
+<p>If starting OTA upgrading OK, the device will receive <code>OPL_DATA_REQ_OTA_RAW</code> and call OTA Manager API <code>OTA_WriteData</code> to start raw data of new firmware from mobile phone.</p>
+<pre><code class="language-c">static void OPL_DataProtocol_OtaRaw(uint16_t type, uint8_t *data, int len)
+{
+    OPL_LOG_DEBG(OPL, &quot;OPL_DATA_REQ_OTA_RAW&quot;);
+
+    T_OplOtaData *ota = gTheOta;
+
+    T_OplErr tEvtRst = OPL_OK;
+
+    tEvtRst = OTA_WriteData(g_u16OtaSeqId, ota-&gt;buf, 256);
+
+    return;
+}
+</code></pre>
+<p>If rawing data successfully, the device will receive <code>OPL_DATA_REQ_OTA_END</code> and call OTA Manager API <code>OTA_UpgradeFinish</code> to finish OTA process.</p>
+<pre><code class="language-c">static void OPL_DataProtocol_OtaEnd(uint16_t type, uint8_t *data, int len)
+{
+    OPL_LOG_DEBG(OPL, &quot;OPL_DATA_REQ_OTA_END&quot;);
+
+    T_OplOtaData *ota = gTheOta;
+
+    uint8_t status = data[0];
+
+    if(OPL_OK == OTA_UpgradeFinish(g_u16OtaSeqId))
+    {
+        OPL_SendEndRsp(OPL_DATA_OTA_SUCCESS, TRUE);
+    }
+    else
+    {
+        OPL_SendEndRsp(OPL_DATA_OTA_ERR_CHECKSUM, TRUE);
+    }
+
+    return;
+}
+</code></pre>
 <h3 id="ota-via-wi-fi">OTA via WI-FI</h3>
-<h3 id="hot-to">Hot To...</h3>
+<p>"OTA via WI-FI" update mechanism helps users to easily and securely update the new firmware on their device through Wi-Fi. To enable WI-FI OTA, the developer should enable <code>CLOUD_OTA_ENABLED</code> in <code>cloud_config.h</code>.</p>
+<pre><code class="language-c">// WI-FI ota enable (OTA_ENABLE and OTA_Init() must required)
+#ifndef CLOUD_OTA_ENABLED
+#define CLOUD_OTA_ENABLED                               (1)
+#endif
+</code></pre>
+<p><code>cloud_ota_http.c</code> (Cloud OTA) is responsible for retrieving OTA data from cloud. In <code>Cloud_OtaTaskHandler</code>, the OTA event <code>CLOUD_OTA_EVT_TYPE_DOWNLOAD</code> will be received and then it applies <code>Cloud_OtaHttpDownload</code> to complete OTA process.</p>
+<pre><code class="language-c">void Cloud_OtaTaskHandler(void *args)
+{
+    osEvent tEvent;
+    T_CloudDataMsg *ptCloudOtaMsg;
+
+    for(;;)
+    {
+        // wait event
+        tEvent = osMessageGet(g_tCloudOtaQueueId, osWaitForever);
+
+        if(tEvent.status == osEventMessage)
+        {
+            ptCloudOtaMsg = (T_CloudDataMsg *)tEvent.value.p;
+
+            switch(ptCloudOtaMsg-&gt;u32EventId)
+            {
+                case CLOUD_OTA_EVT_TYPE_DOWNLOAD:
+                {
+
+                    int32_t i32Ret = Cloud_OtaHttpDownload((char *)ptCloudOtaMsg-&gt;u8aData, (int)ptCloudOtaMsg-&gt;u32DataLen);
+                    break;
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<p><code>Cloud_OtaHttpDownload</code>is a single task to execute "OTA via WI-FI" process. "OTA via WI-FI" process include connecting to http server, getting current OTA version, retrieving raw data of new firmware from cloud, and finishing OTA process via OTA Manager.</p>
+<pre><code class="language-c">int32_t Cloud_OtaHttpDownload(char *url, int len)
+{
+    char get_url[CLOUD_OTA_HTTP_URL_LEN];
+    char *buf;
+
+    int8_t i8Ret = HTTPCLIENT_ERROR_CONN;
+    uint32_t u16UrlLen = strlen(url);
+    uint16_t u16Pid, u16Cid, u16Fid;
+    uint8_t u8RetryCount = 0;
+
+
+    // connect to http server
+    do
+    {
+        i8Ret = httpclient_connect(&amp;g_tCloudOtaHttpClient, get_url);
+        if(!i8Ret)
+        {
+            OPL_LOG_INFO(CLOUD, &quot;Connect to http server&quot;);
+            break;
+        }
+        else
+        {
+            osDelay(1000);
+            u8RetryCount ++;
+            OPL_LOG_WARN(CLOUD, &quot;Connect to http server fail, retry count (%d)&quot;, u8RetryCount);
+        }
+    } while(u8RetryCount &lt; CLOUD_OTA_HTTP_CONNECTION_RETRY_COUNT);
+
+    // get current ota version
+    OTA_CurrentVersionGet(&amp;u16Pid, &amp;u16Cid, &amp;u16Fid);
+
+    OPL_LOG_DEBG(CLOUD, &quot;pid=%d, cid=%d, fid=%d&quot;, u16Pid, u16Cid, u16Fid);
+
+    //raw data of new firmware from the cloud
+    i8Ret = _Cloud_OtaHttpRetrieveGet(get_url, buf, CLOUD_OTA_HTTP_DATA_LEN);
+
+    if(0 &gt; i8Ret)
+    {
+        if(OPL_OK != OTA_UpgradeGiveUp(g_u16OtaSeqId))
+        {
+            OPL_LOG_ERRO(CLOUD, &quot;OTA give up fail&quot;);
+        }
+    }
+    else
+    {
+        //complete OTA 
+        if(OPL_OK != OTA_UpgradeFinish(g_u16OtaSeqId))
+        {
+            OPL_LOG_ERRO(CLOUD, &quot;OTA finish fail&quot;);
+        }
+    }
+
+    OPL_LOG_INFO(CLOUD, &quot;download result = %d&quot;, i8Ret);
+
+    // close http connection
+    httpclient_close(&amp;g_tCloudOtaHttpClient);
+
+    free(buf);
+    buf = NULL;
+
+    return i8Ret;
+}
+</code></pre>
+<h3 id="how-to">How To...</h3>
+<ul>
+<li><strong>How to execute OTA via WI-FI in a single task</strong></li>
+</ul>
+<p><code>Cloud_OtaHttpDownload</code> is a single task to execute "OTA via WI-FI" process</p>
 <ol>
-<li>How to 1...</li>
-<li>How to 2...</li>
+<li>
+<p>Apply <code>httpclient_connect</code> to connect http server</p>
+</li>
+<li>
+<p>Apply <code>OTA_CurrentVersionGet</code> Get current OTA firmware version via OTA Manager</p>
+</li>
+<li>
+<p>Apply <code>_Cloud_OtaHttpRetrieveGet</code> to retrieve raw data of new firmware from the cloud</p>
+</li>
+<li>
+<p>If retrieving sucessfully, apply <code>OTA_UpgradeFinish</code> to complete OTA via OTA Manager</p>
+</li>
+<li>
+<p>Apply <code>httpclient_close</code> to close http connection</p>
+</li>
 </ol>
               
             </div>

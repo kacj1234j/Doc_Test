@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Cloud - Quick-DEV Programming Guide</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Cloud";
+        var mkdocs_page_input_path = "examples\\cloud_example.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Quick-DEV Programming Guide
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Quick-DEV FWK</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../..">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../get_started/get_started/">Get Started</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Application Guide</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../application-guide/project_config/">Project Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../application-guide/log_config/">Log Configuration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../application-guide/wifi/">WI-Fi</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../application-guide/ble/">BluetoothLE</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../application-guide/wifi_provision_via_ble/">WI-FI Provision Via BLE</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../application-guide/cloud/">Cloud</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../application-guide/ota/">OTA</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../wifi_example/">WI-FI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../ble_example/">BLE</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../qd_app_example/">START_UP</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Cloud</a>
+    <ul class="current">
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/wifi_apis/">WI-FI</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/ble_apis/">BluetoothLE</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/cloud_apis/">Cloud</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../api-reference/ota_apis/">OTA</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Quick-DEV Programming Guide</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>Examples &raquo;</li><li>Cloud</li>
+    <li class="wy-breadcrumbs-aside">
+        <a href="https://github.com/kacj1234j/Doc_Test/edit/master/docs/examples/cloud_example.md"
+          class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="tcp-cloud">TCP Cloud</h1>
+<p>This TCP Cloud Demo is the application utilizes the TCP cloud ported from cloud template so that the OPL device can connect to TCP server. The example application is in <code>\examples\cloud\tcp_demo</code>. The TCP Cloud is in<code>\quick_dev\app_ref\cloud\tcp_cloud</code>. This example is mainly to demonstrate how to connect to the TCP Server after connecting to Wi-Fi.</p>
+<p>In the beginning of this example, it will connect to Wi-Fi using BLE broadcast, as in QD_APP (see QD_APP for details). This example is mainly to demonstrate how to connect to the TCP Server after connecting to Wi-Fi, and the TCP Server we apply is "SocketTest" (url: http://sockettest.sourceforge.net/). A JAVA environment is necessary to run the "SocketTest" server. After running SocketTest,  press "Start Listening".</p>
+<p><img alt="cloud_1" src="../img/cloud_1.png" /></p>
+<p><strong>1. How to connect and send message to TCP Server</strong></p>
+<p><img alt="cloud_2" src="../img/cloud_2.png" /></p>
+<p>In this example, if the user wants to connect to the TCP Server, issue AT command "at+tcpconnet= IP address,port" to send the TCP connection request. After sending the TCP connection request, the TCP Server will connect and send the result back to the Device. The "TCP connect" message will show in DBG mode of terminal window. </p>
+<p><img alt="cloud_3" src="../img/cloud_3.png" /></p>
+<p><img alt="cloud_4" src="../img/cloud_4.png" /></p>
+<p><img alt="cloud_5" src="../img/cloud_5.png" /></p>
+<p>After connected, if the user can send data to the TCP Server. Issue AT command "at+tcpsend= the message user wants to send” to send data to the TCP Server.</p>
+<p><img alt="cloud_6" src="../img/cloud_6.png" /></p>
+<p><img alt="cloud_7" src="../img/cloud_7.png" /></p>
+<p><img alt="cloud_8" src="../img/cloud_8.png" /></p>
+<p>Server will receive the same data and display in server console.</p>
+<p><strong>2. Keep alive demonstration</strong></p>
+<p><img alt="cloud_9" src="../img/cloud_9.png" /></p>
+<p>After connected, issue AT command “at+smartsleep” to turn on Smart Sleep mode. Even in sleep mode, the device will still send a "ping" message to the TCP Server every 10000ms(10S). The purpose is to tell the TCP Server that the device is still alive.</p>
+<p><img alt="cloud_10" src="../img/cloud_10.png" /></p>
+<p><img alt="cloud_11" src="../img/cloud_11.png" /></p>
+<p>Server will receive the "Ping" message and display in server console.</p>
+<p><strong>3. Receive message</strong></p>
+<p><img alt="cloud_12" src="../img/cloud_12.png" /></p>
+<p>After device connected to server and enter Sleep mode, input message in "Send Message" textbox of "SocketTest". Server will send the message to the device. After receiving in device side, the message will display in DBG Console.</p>
+<p><img alt="cloud_13" src="../img/cloud_13.png" /></p>
+<p><img alt="cloud_14" src="../img/cloud_14.png" /></p>
+<h1 id="mqtt-cloud">MQTT Cloud</h1>
+<p>This MQTT Cloud Demo is the application utilizes the MQTT cloud ported from cloud template so that the OPL device can connect/subscribe/publish to MQTT server. The example application is in <code>\examples\cloud\mqtt_demo</code>. The MQTT cloud is in <code>\quick_dev\app_ref\cloud\mqtt_cloud</code>. This example is mainly to demonstrate how to connect to the MQTT Server and publish and subscribe Topic after connecting to Wi-Fi.</p>
+<p><img alt="cloud_1" src="../img/mqtt_1.png" /></p>
+<p>The MQTT server (Broker) will hand-over the data from client who published to client who subscribed, it is a center role of MQTT system. And all the clients are connected to same Broker and using topic subscribe/publish mechanism to transmit and receive data. So as the MQTT demo, user will need to install a client on your PC to create a demonstration environment.</p>
+<ul>
+<li><strong>Setup remote MQTT client</strong></li>
+</ul>
+<p>First, we have to setup another remote MQTT client (a soft MQTT client running on PC). The MQTT client tool we apply in this example is "MQTTX" (url: https://www.emqx.com/en/downloads/MQTTX/v1.8.1/MQTTX-Setup-1.8.1-x64.exe). </p>
+<p>After installed, open the tool and setup like screen shot.</p>
+<p><img alt="cloud_2" src="../img/mqtt_2.png" /></p>
+<p>Press ”+” to create new connections, and the general setup descripts are.
+Name: like the name of the project, just for recognize in this tool.
+Client ID: the “UNIQE” ID for server to register, should be an only name for all the clients.
+Host: the demonstration of project is connected to the public MQTT server, “broker.emqx.io”
+Port: the “broker.emqx.io” port using 8883
+SSL/TLS: enable authentication during connection
+Certificate: using CA signed server (only need server to sign the CA cert)
+SSL Secure: enable</p>
+<ul>
+<li><strong>Add new subscription (topic from device)</strong></li>
+</ul>
+<p>After filled all necessary items, press connect on right-top of this window. If connect successfully, you will see the UI like screen shot.</p>
+<p><img alt="cloud_3" src="../img/mqtt_3.jpg" /></p>
+<p>You can add new subscription to listening the topic (red square) and publish topic (blue square).</p>
+<p>After press “New Subscription”, user will see this window like the screen shot below and the default topic that device publis is “QD_FWK/MQTT_DEMO/PUB_Test/1”.</p>
+<p><img alt="cloud_4" src="../img/mqtt_4.png" /></p>
+<p>After entering the Topic, user can press Confirm to finish building subscription and see this window like the screen shot blow</p>
+<p><img alt="cloud_5" src="../img/mqtt_5.png" /></p>
+<p>The device will published “Hello MQTT!” per 1500 ms(15s), we can also see the topic publish displayed in device debug console.</p>
+<p><img alt="cloud_6" src="../img/mqtt_6.png" /></p>
+<ul>
+<li><strong>Publish topic (to device)</strong></li>
+</ul>
+<p>There are two topics subscribed in device side. They are “QD_FWK/MQTT_DEMO/SUB_Test/1” and “QD_FWK/MQTT_DEMO/SUB_Test/2”.</p>
+<p><img alt="cloud_7" src="../img/mqtt_7.png" /></p>
+<p>User can publish same topic from MQTTX as screen shot below</p>
+<p><img alt="cloud_8" src="../img/mqtt_8.png" /></p>
+<p>In device debug console, the same topic will be recevied</p>
+<p><img alt="cloud_9" src="../img/mqtt_9.png" /></p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../qd_app_example/" class="btn btn-neutral float-left" title="START_UP"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../api-reference/wifi_apis/" class="btn btn-neutral float-right" title="WI-FI">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright 2022, MaxLiao corporation</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/kacj1234j/Doc_Test" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../qd_app_example/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../api-reference/wifi_apis/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

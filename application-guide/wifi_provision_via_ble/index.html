@@ -63,13 +63,13 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#how-to">How to...</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#how-to-create-an-user-defined-servic-service-eg-quickapp_refble_data_protopl_svcc-in-ble-manager">How to create an user defined servic service (e.g. quick\app_ref\ble_data_prot\opl_svc.c) in BLE Manager</a>
+    <li class="toctree-l3"><a class="reference internal" href="#how-to-create-an-user-defined-service-eg-quick_devapp_refble_data_protopl_svcc-in-ble-manager">How to create an user defined service (e.g. quick_dev\app_ref\ble_data_prot\opl_svc.c) in BLE Manager</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#how-to-receive-ble-data-in-and-then-export-to-ble-application-in-application">How to receive BLE data in and then export to BLE Application in application</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#how-to-handle-wi-fi-provision-message-via-ble-in-ble-application">How to handle Wi-Fi provision message via BLE in BLE Application</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#how-to-respnose-wi-fi-process-result-to-phone-ble-central">How to respnose Wi-Fi process result to phone (BLE central)</a>
+    <li class="toctree-l3"><a class="reference internal" href="#how-to-respnose-wi-fi-process-result-to-phone">How to respnose Wi-Fi process result to phone</a>
     </li>
         </ul>
     </li>
@@ -86,11 +86,9 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../examples/ble_example/">BLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">QD_APP</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">START_UP</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
-                  </li>
-                  <li class="toctree-l1"><a class="" href="../../Peripheral">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/cloud_example/">Cloud</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">API Reference</span></p>
@@ -148,7 +146,7 @@
 }
 </code></pre>
 <h2 id="how-to">How to...</h2>
-<h3 id="how-to-create-an-user-defined-servic-service-eg-quickapp_refble_data_protopl_svcc-in-ble-manager">How to create an user defined servic service (e.g. <code>quick\app_ref\ble_data_prot\opl_svc.c</code>) in BLE Manager</h3>
+<h3 id="how-to-create-an-user-defined-service-eg-quick_devapp_refble_data_protopl_svcc-in-ble-manager">How to create an user defined service (e.g. <code>quick_dev\app_ref\ble_data_prot\opl_svc.c</code>) in BLE Manager</h3>
 <p>Please refer to <a href="../ble/">BluetoothLE</a></p>
 <h3 id="how-to-receive-ble-data-in-and-then-export-to-ble-application-in-application">How to receive BLE data in and then export to BLE Application in application</h3>
 <ul>
@@ -258,9 +256,190 @@
     APP_NmWifiScanReq(OPL_DataHandler_WifiScanDoneIndCb);
 }
 </code></pre>
-<h3 id="how-to-respnose-wi-fi-process-result-to-phone-ble-central">How to respnose Wi-Fi process result to phone (BLE central)</h3>
-<p>BLE Application send Wi-Fi provision message to Network Manager, and then Network Manager will create a callback function (e.g. <code>OPL_DataHandler_WifiScanDoneIndCb</code>) to handle indicate callback.</p>
-<p>For example, if Wi-Fi scan done, the Wi-FI scan done callback <code>OPL_DataHandler_WifiScanDoneIndCb</code> will send scan done result to phone via BLE Manager.</p>
+<h3 id="how-to-respnose-wi-fi-process-result-to-phone">How to respnose Wi-Fi process result to phone</h3>
+<p>BLE Application send Wi-Fi provision message to Network Manager, and then Network Manager will create a callback function to handle indicate callback.</p>
+<p>For example, if Wi-Fi scan done, the Wi-FI scan done callback <code>OPL_DataHandler_WifiScanDoneIndCb</code> will follow up on scan done.</p>
+<pre><code class="language-c">void OPL_DataHandler_WifiScanDoneIndCb(T_OplErr tEvtRst)
+{
+    OPL_LOG_DEBG(OPL, &quot;Wifi scan done ind %d&quot;, tEvtRst);
+
+    if(OPL_DATA_CONN_TYPE_BSSID == g_tOplDataConnCfg.u8ConnectType)
+    {
+        // CK_DATA_REQ_SCAN cmd, just do report scan list
+        _OPL_DataHandler_SendScanReport();
+        OPL_DataSendResponse(OPL_DATA_RSP_SCAN_END, 0);
+    }
+}
+</code></pre>
+<p><code>_OPL_DataHandler_SendScanReport</code> will obtain the information of APs via Wi-Fi Manager in the environment, and sort out the AP list. </p>
+<pre><code class="language-c">static int _OPL_DataHandler_SendScanReport(void)
+{
+    wifi_scan_info_t *pstAPList = NULL;
+    wifi_auto_connect_info_t *info = NULL;
+    T_WmScanInfo *pstWifiAPList = NULL;
+
+    uint8_t u8APPAutoConnectGetApNum = 0;
+    // uint8_t u8IsUpdate = false;
+    uint16_t u16apCount = 0;
+
+    int32_t i = 0, j = 0;
+
+    // TODO: get ap number
+    Opl_Wifi_ApNum_Get(&amp;u16apCount);
+
+    OPL_LOG_INFO(OPL, &quot;AP num = %d&quot;, u16apCount);
+
+    pstAPList = (wifi_scan_info_t *)malloc(sizeof(wifi_scan_info_t) * u16apCount);
+
+    // TODO: get ap record
+    Opl_Wifi_ApRecord_Get(&amp;u16apCount, pstAPList);
+
+    pstWifiAPList = (T_WmScanInfo *)malloc(sizeof(T_WmScanInfo) * u16apCount);
+
+    memset(pstWifiAPList , 0 , sizeof(T_WmScanInfo) * u16apCount);
+
+    // TODO: get auto connect ap number
+    Opl_Wifi_AutoConnectApNum_Get(&amp;u8APPAutoConnectGetApNum);
+
+    if (u8APPAutoConnectGetApNum)
+    {
+        info = (wifi_auto_connect_info_t *)malloc(sizeof(wifi_auto_connect_info_t) * u8APPAutoConnectGetApNum);
+
+        memset(info, 0, sizeof(wifi_auto_connect_info_t) * u8APPAutoConnectGetApNum);
+
+        for (i = 0; i &lt; u8APPAutoConnectGetApNum; i++)
+        {
+
+            // TODO: get auto connected ap info
+            Opl_Wifi_AutoConnectApInfo_Get(i, info + i);
+    }
+
+    /* build blewifi ap list */
+    for (i = 0; i &lt; u16apCount; ++i)
+    {
+        memcpy(pstWifiAPList[i].ssid, pstAPList[i].ssid, sizeof(pstAPList[i].ssid));
+        memcpy(pstWifiAPList[i].bssid, pstAPList[i].bssid, WIFI_MAC_ADDRESS_LENGTH);
+        pstWifiAPList[i].rssi = pstAPList[i].rssi;
+        pstWifiAPList[i].auth_mode = pstAPList[i].auth_mode;
+        pstWifiAPList[i].ssid_length = strlen((const char *)pstAPList[i].ssid);
+        pstWifiAPList[i].connected = 0;
+#if (1 == FLITER_STRONG_AP_EN)
+        pstWifiAPList[i].u8IgnoreReport = false;
+#endif
+        for (j = 0; j &lt; u8APPAutoConnectGetApNum; j++)
+        {
+            if ((info+j)-&gt;ap_channel)
+            {
+                if(!memcmp(pstWifiAPList[i].ssid, (info+j)-&gt;ssid, sizeof((info+j)-&gt;ssid)) &amp;&amp; !memcmp(pstWifiAPList[i].bssid, (info+j)-&gt;bssid, sizeof((info+j)-&gt;bssid)))
+                {
+                    pstWifiAPList[i].connected = 1;
+                    break;
+                }
+            }
+        }
+    }
+
+    /* Send Data to BLE */
+    /* Send AP inforamtion individually */
+    for (i = 0; i &lt; u16apCount; ++i)
+    {
+#if (1 == FLITER_STRONG_AP_EN)
+        if(true == pstWifiAPList[i].u8IgnoreReport)
+        {
+            continue;
+        }
+#endif
+        if(pstWifiAPList[i].ssid_length != 0)
+        {
+            _OPL_DataHandler_SendSignalScanReport(1, &amp;pstWifiAPList[i]);
+            osDelay(100);
+        }
+    }
+
+    if (pstAPList)
+        free(pstAPList);
+
+    if (pstWifiAPList)
+        free(pstWifiAPList);
+
+    if (info)
+        free(info);
+
+    return ubAppErr;
+}
+</code></pre>
+<p><code>_OPL_DataHandler_SendSignalScanReport</code> will organize the AP list</p>
+<pre><code class="language-c">static void _OPL_DataHandler_SendSignalScanReport(uint16_t apCount, T_WmScanInfo *ap_list)
+{
+    uint8_t *data;
+    int data_len;
+    uint8_t *pos;
+    int malloc_size = sizeof(T_WmScanInfo) * apCount;
+
+    pos = data = malloc(malloc_size);
+    if (data == NULL)
+    {
+        OPL_LOG_ERRO(OPL, &quot;malloc fail&quot;);
+        return;
+    }
+
+    for (int i = 0; i &lt; apCount; ++i)
+    {
+        uint8_t len = ap_list[i].ssid_length;
+
+        data_len = (pos - data);
+
+        *pos++ = len;
+        memcpy(pos, ap_list[i].ssid, len);
+        pos += len;
+        memcpy(pos, ap_list[i].bssid,6);
+        pos += 6;
+        *pos++ = ap_list[i].auth_mode;
+        *pos++ = ap_list[i].rssi;
+#ifdef CK_DATA_USE_CONNECTED
+        *pos++ = ap_list[i].connected;
+#else
+        *pos++ = 0;
+#endif
+    }
+
+    data_len = (pos - data);
+
+    /* create scan report data packet */
+    OPL_DataSendEncap(OPL_DATA_RSP_SCAN_REPORT, data, data_len);
+
+    free(data);
+}
+</code></pre>
+<p><code>OPL_DataSendEncap</code> is responsible for packing data in accordance with BLE packet format.</p>
+<pre><code class="language-c">void OPL_DataSendEncap(uint16_t u16Type, uint8_t *pu8Data, uint32_t u32TotalDataLen)
+{
+    T_OplDataHdrTag *tHdrTag = NULL;
+    int remain_len = u32TotalDataLen;
+
+    /* 1.fragment data packet to fit MTU size */
+
+    /* 2.Pack blewifi header */
+    tHdrTag = malloc(sizeof(T_OplDataHdrTag) + remain_len);
+    if (tHdrTag == NULL)
+    {
+        OPL_LOG_ERRO(OPL, &quot;malloc fail&quot;);
+        return;
+    }
+
+    tHdrTag-&gt;u16EventId = u16Type;
+    tHdrTag-&gt;u16DataLen = remain_len;
+    if (tHdrTag-&gt;u16DataLen)
+        memcpy(tHdrTag-&gt;au8Data, pu8Data, tHdrTag-&gt;u16DataLen);
+
+    /* 3.send app data to BLE stack */
+
+    Opl_Ble_Send_Message(OPL_SVC_EVT_SEND_DATA, (uint8_t *)tHdrTag, (tHdrTag-&gt;u16DataLen + sizeof(T_OplDataHdrTag)), 0);
+
+    free(tHdrTag);
+}
+</code></pre>
+<p><code>Opl_Ble_Send_Message</code> is responsible for sending scan done result (e.g. AP list) to phone via BLE Manager.</p>
               
             </div>
           </div><footer>

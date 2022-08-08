@@ -5,14 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>QD_APP - Quick-DEV Programming Guide</title>
+    <title>START_UP - Quick-DEV Programming Guide</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "QD_APP";
+        var mkdocs_page_name = "START_UP";
         var mkdocs_page_input_path = "examples\\qd_app_example.md";
         var mkdocs_page_url = null;
       </script>
@@ -70,21 +70,21 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../ble_example/">BLE</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">QD_APP</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">START_UP</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#create-ble-channel">Create BLE channel</a>
+    <li class="toctree-l2"><a class="reference internal" href="#qd-app-example">QD APP example</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#ble-service-for-data-inputout">BLE service for data input/out</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#execute-ble-data-in-data-out">Execute BLE data in &amp; data out</a>
+    <li class="toctree-l3"><a class="reference internal" href="#wi-fi-provision-via-ble">Wi-Fi provision via BLE</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#initialize-wi-fi-via-network-manager">Initialize Wi-Fi via Network Manager</a>
+    <li class="toctree-l3"><a class="reference internal" href="#ota-via-ble">OTA via BLE</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#wi-fi-provision-via-ble">Wi-Fi provision via BLE</a>
+        </ul>
     </li>
     </ul>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
-                  </li>
-                  <li class="toctree-l1"><a class="" href="../../Peripheral">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../cloud_example/">Cloud</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">API Reference</span></p>
@@ -112,7 +112,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
-          <li>Examples &raquo;</li><li>QD_APP</li>
+          <li>Examples &raquo;</li><li>START_UP</li>
     <li class="wy-breadcrumbs-aside">
         <a href="https://github.com/kacj1234j/Doc_Test/edit/master/docs/examples/qd_app_example.md"
           class="icon icon-github"> Edit on GitHub</a>
@@ -124,24 +124,68 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="qd-app-example">QD APP example</h1>
-<p><img alt="qd_app_arch" src="../img/qd_fwk_arch.png" /></p>
-<p>QD APP  example is the main example of our company's demo, which includes create BLE channel, execute BLE data in &amp; data out, Initialize Wi-Fi via Network Manager, Wi-FI provision via BLE and OTA via BLE in <code>examples\start_up</code></p>
-<h3 id="create-ble-channel">Create BLE channel</h3>
-<p>During initiation, this example uses BLE Manager to create BLE channel.</p>
-<h3 id="execute-ble-data-in-data-out">Execute BLE data in &amp; data out</h3>
-<p><img alt="qd_ble_data_io" src="../img/qd_ble_data_io.png" /></p>
-<p>When the data is sent from user’s phone, the data will be transferred to the BLE Mangar through the LE task, and then the BLE Manager will use the OPL_Service to transfer the data to the User Application. If the User Application wants to transfer data to the phone, there are two ways to do it.  The first is to use CopytoBuffer to package the data and send the packaged message to user’s phone. The second is to use SendtoPeer to package the data and use notify to transfer the data to user’s phone.</p>
-<h3 id="initialize-wi-fi-via-network-manager">Initialize Wi-Fi via Network Manager</h3>
-<p>During initiation, User Application use Network Manager to initialize Wi-Fi.</p>
+                <h1 id="start-up-example">START UP example</h1>
+<h2 id="qd-app-example">QD APP example</h2>
+<p>QD APP example is an entry example application of QuickDev Framework. It includes creation of BLE service for BLE data input/out channel, Wi-FI provision via BLE, and OTA procedure via BLE. The QD APP example is located at <code>examples\start_up</code></p>
+<h3 id="ble-service-for-data-inputout">BLE service for data input/out</h3>
+<p>This BLE data input/output service implements the User Data Service to send or receive data via BLE. The BLE User Data Service is in <code>\quick_dev\app_ref\ble_services\ud_svc.c</code>.</p>
+<p><img alt="qd_ble_data_io" src="../img/qd_ble_data_io.jpg" /></p>
+<p>User can issue request to device on phone app. The request will be packed as data packet and send to device. Once receiving data from phone app, the data will be transferred to the BLE Mangar through the LE task, and then the BLE Manager will transfer the data to the User Application via OPL_Service. 
+Application will parse the data and perform indicated operation (ex. WiFi scan, WiFI connect…).
+Device might send data to phone app also. For example, report event or status to phone app, or response the request from phone app. The application of device will issue data sending request to BLE manager. The BLE manager will send data to peer side via the service created. </p>
 <h3 id="wi-fi-provision-via-ble">Wi-Fi provision via BLE</h3>
+<p>Wi-Fi provision via BLE provides a mechanism to set up Wi-Fi via BLE.</p>
 <p><img alt="wifi_provision_via_ble" src="../img/wifi_provision_via_ble.png" /></p>
+<p>The Opulinks phone app provide WiFi setup function that user can perform WiFi provision via BLE to Opulinks device. User configurate Wi-Fi setup in phone app and send this request to the device (BLE peripheral) via BLE. When the phone sends Wi-Fi provision request to the device via BLE, the device utilize BLE Manager to receive this message. BLE Manager will transmit this message to application and then application will pass this message to BLE Application. BLE Application will parse this message and prepare different handler to handle different request (e.g., Wi-Fi scan request or Wi-Fi connect). These handlers would call Network Manager API to execute Wi-Fi process.</p>
+<p>When excutig Wi-Fi process done, the device wants to respnose results to the phone. Bottom layer would send Wi-Fi process response results to BLE Application via Network Manager. BLE Application would organize these Wi-Fi process response results and then pass these organized message to BLE Manager. These messages would be sent to phone by BLE Manager.</p>
+<p>Once the Wi-Fi provision via BLE is successful and Wi-Fi connection, it will automatically reconnect to the AP set by the wi-fi provision via ble after the disconnection.</p>
+<ul>
+<li><strong>The following is a Wi-Fi provision via BLE example of step by step</strong></li>
+</ul>
+<p>Step1. Running Opulinks Utilities app</p>
+<p><img alt="step_1" src="../img/wifi_provision_via_ble_1.png" /></p>
+<p>Step2. Press BLE Tool and turn on device</p>
+<p><img alt="step_2" src="../img/wifi_provision_via_ble_2.png" /></p>
+<p>After user turn on device, DBG console will show device mac.</p>
+<p>Step3. After press BLE Tool and turn on device, find device with the same MAC in APP scan result, and  then press connect. Once connected, DBG console will show peer mac.</p>
+<p><img alt="step_3" src="../img/wifi_provision_via_ble_3.png" /></p>
+<p><img alt="step_3_1" src="../img/wifi_provision_via_ble_3_1.png" /></p>
+<p>Step4. Press Wifi Setup</p>
+<p><img alt="step_4" src="../img/wifi_provision_via_ble_4.png" /></p>
+<p>Once user press Wifi Setup, device will scan wifi and send result to APP.</p>
+<p><img alt="step_4_1" src="../img/wifi_provision_via_ble_4_1.png" /></p>
+<p><img alt="step_4_2" src="../img/wifi_provision_via_ble_4_2.png" /></p>
+<p>Choose an ap (ex, TOTOLINK).</p>
+<p><img alt="step_4_3" src="../img/wifi_provision_via_ble_4_3.png" /></p>
+<p>After user enter the password, it will pop up a window to tell user successful or failed.</p>
+<p><img alt="step_4_4" src="../img/wifi_provision_via_ble_4_4.png" /></p>
+<p><img alt="step_4_5" src="../img/wifi_provision_via_ble_4_5.png" /></p>
+<h3 id="ota-via-ble">OTA via BLE</h3>
+<ul>
+<li><strong>The following is OTA via BLE example of step by step</strong></li>
+</ul>
+<p>Step1. Running Opulinks Utilities app</p>
+<p><img alt="step_1" src="../img/wifi_provision_via_ble_1.png" /></p>
+<p>Step2. Press BLE Tool and turn on device</p>
+<p><img alt="step_2" src="../img/wifi_provision_via_ble_2.png" /></p>
+<p>After user turn on device, DBG console will show device mac.</p>
+<p>Step3. After press BLE Tool and turn on device, find device with the name OPL_APP_xx:xx:xx:xx (xx:xx:xx:xx are the last four significant bytes of ble mac address) in APP scan result, and  then press connect. Once connected, DBG console will show peer mac. App will show the function menu (Step4).</p>
+<p><img alt="step_3" src="../img/wifi_provision_via_ble_3.png" /></p>
+<p><img alt="step_3_1" src="../img/wifi_provision_via_ble_3_1.png" /></p>
+<p>Step4. Press BLE OTA</p>
+<p><img alt="step_4_1" src="../img/ota_via_ble_4_1.png" /></p>
+<p>Step5. Pres Choose OTA File</p>
+<p><img alt="step_5" src="../img/ota_via_ble_5.png" /></p>
+<p>Step6 Choose OTA new firmware</p>
+<p><img alt="step_6" src="../img/ota_via_ble_6.png" /></p>
+<p>If OTA successfully, App will show</p>
+<p><img alt="step_7" src="../img/ota_via_ble_7.png" /></p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../ble_example/" class="btn btn-neutral float-left" title="BLE"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../../api-reference/wifi_apis/" class="btn btn-neutral float-right" title="WI-FI">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../cloud_example/" class="btn btn-neutral float-right" title="Cloud">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -172,7 +216,7 @@
       <span><a href="../ble_example/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../../api-reference/wifi_apis/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../cloud_example/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

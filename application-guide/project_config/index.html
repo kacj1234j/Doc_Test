@@ -76,11 +76,9 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../examples/ble_example/">BLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">QD_APP</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">START_UP</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
-                  </li>
-                  <li class="toctree-l1"><a class="" href="../../Peripheral">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/cloud_example/">Cloud</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">API Reference</span></p>
@@ -121,7 +119,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="project-configuration">Project Configuration</h1>
-<p>There are two configuration concepts qd_config.h and qd_module.h in this topic. In qd_config, we help developers classify some system configurations, among which power save is the key point. We use the concept of modularity to include the configuration method in qd_module.h</p>
+<p>There are two configuration concepts qd_config.h and qd_module.h in this topic. In qd_config, we help developers classify some system configurations, among which power save is the key point. We use the concept of modularity to include the configuration method in qd_module.</p>
 <h3 id="about-qd_configh">About 'qd_config.h'</h3>
 <ul>
 <li><strong>OPL Chip ID check</strong></li>
@@ -132,6 +130,7 @@
 #error &quot;no define chip id in global definition in 'Preprocessor Symbols'&quot;
 #endif
 </code></pre>
+<p>The chip id should be defined in Keil project file.</p>
 <ul>
 <li><strong>RF power setting configuration</strong></li>
 </ul>

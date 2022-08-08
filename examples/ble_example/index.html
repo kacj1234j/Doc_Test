@@ -76,11 +76,9 @@
     </li>
     </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../qd_app_example/">QD_APP</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../qd_app_example/">START_UP</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
-                  </li>
-                  <li class="toctree-l1"><a class="" href="../../Peripheral">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../cloud_example/">Cloud</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">API Reference</span></p>
@@ -123,17 +121,19 @@
                 <h1 id="ble-example">BLE example</h1>
 <p>BLE example is intended to demonstrate the BLE functionality, and to provide code that you can copy and adapt into your own projects</p>
 <h2 id="ble-battery-service">BLE battery service</h2>
+<p>This example creates BLE battery service  with the Battery Level characteristic to monitor battery levels. This example application is in <code>\examples\ble\ble_svc_battery</code>. The BLE battery service is in <code>\quick_dev\app_ref\ble_services\bas_svc.c</code>.</p>
 <p><img alt="ble_svc_battery" src="../img/ble_svc_battery.png" /></p>
-<p>This example uses the module to implement a battery service with a battery level characteristic. During initialization, it starts system timers and adds battery services and battery level characteristic. After the timer timeout, the device will notify the client the battery level characteristics.</p>
+<p>During initialization, it starts system timers and adds battery services and battery level characteristic. After the timer timeout, the device will notify the client the battery level characteristics.</p>
 <h2 id="ble-data-inputoutput-service">BLE data input/output service</h2>
-<p><img alt="ble_svc_data_io" src="../img/ble_svc_data_io.png" /></p>
+<p>This example creates BLE data input/output service send or receive data via BLE. The example application is in <code>\examples\ble\ble_svc_data_io</code>. The BLE User Data Service is in <code>\quick_dev\app_ref\ble_services\ud_svc.c</code>.</p>
+<p><img alt="ble_svc_data_io" src="../img/ble_svc_data_io.jpg" /></p>
 <p>When the user sends data, the data will be sent to the Le task first. Then Le task will pass the data into the GattDispatchHandler in User define Service. According data's access permission that include read, write or notify, developer could create different handler to handle. This example use write handler <code>GattWriteHandler</code> to handle write access data from phone (APP). <code>GattWriteHandler</code> will be responsible for passing the data to the application, and the application will return the respnose to the phone (APP) via DataoutNotify.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../wifi_example/" class="btn btn-neutral float-left" title="WI-FI"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../qd_app_example/" class="btn btn-neutral float-right" title="QD_APP">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../qd_app_example/" class="btn btn-neutral float-right" title="START_UP">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>

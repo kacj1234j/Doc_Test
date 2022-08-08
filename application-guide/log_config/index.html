@@ -72,11 +72,9 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../examples/ble_example/">BLE</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">QD_APP</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/qd_app_example/">START_UP</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../Cloud">None</a>
-                  </li>
-                  <li class="toctree-l1"><a class="" href="../../Peripheral">None</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/cloud_example/">Cloud</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">API Reference</span></p>
@@ -117,7 +115,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="log-configuration">Log Configuration</h1>
-<p>The Log Configuration <code>quick_dev\common\log\log.h</code> is the configuration that package one layer on bottom layer <code>tracer_log</code> in <code>sdk\SDK\APS\middleware\netlink\msg\msg.h</code>. The log configuration can help developer to trace and debug in application, the log can divide into four types that are debug, information, warnnimg and error. Developer can turn on the log level that they want to see according to their needs. To enter <code>tracer level &lt;task_index&gt; &lt;task_level:hex&gt;</code>  could turn on tracer level in debug mode. </p>
+<p>The Log Configuration <code>quick_dev\common\log\log.h</code> is the configuration that package one layer on bottom layer <code>tracer_log</code> in <code>sdk\SDK\APS\middleware\netlink\msg\msg.h</code>. The log configuration can help developer to trace and debug in application, the log can divide into four types that are debug, information, warnnimg and error. The developer can switch the log level that they want to see according to their needs. To enter <code>tracer level &lt;task_index&gt; &lt;task_level:hex&gt;</code>  could turn on tracer level in debug console. </p>
 <p>If wanting to trace log with Log Configration, the developer could use <code>tracer_def_level_set()</code>  to set trcae log. The developer can refer to the following examples</p>
 <pre><code class="language-c">static void Main_AppInit_patch(void)
 {
